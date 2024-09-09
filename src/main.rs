@@ -1,6 +1,6 @@
 use axum::{routing::get, Router};
 use handlers::{brand, drum, printer, status, toner};
-use sqlx::postgres::PgPoolOptions;
+use sqlx::PgPool;
 use std::env;
 
 mod handlers;
@@ -14,11 +14,7 @@ async fn main() {
 
     println!("🌟 Printer Supplies API 🌟");
 
-    let pool = match PgPoolOptions::new()
-        .max_connections(10)
-        .connect(&database_url)
-        .await
-    {
+    let pool = match PgPool::connect(&database_url).await {
         Ok(pool) => {
             println!("✅ Conectado ao banco de dados");
             pool
