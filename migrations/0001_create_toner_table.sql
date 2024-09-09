@@ -1,0 +1,5 @@
+CREATE TABLE toners (
+    id UUID PRIMARY KEY,
+    name VARCHAR NOT NULL,
+    color VARCHAR NOT NULL
+);
