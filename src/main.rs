@@ -1,5 +1,5 @@
 use axum::{routing::get, Router};
-use handlers::status;
+use handlers::{status, toner};
 use sqlx::postgres::PgPoolOptions;
 use std::env;
 
@@ -8,7 +8,7 @@ mod models;
 
 #[tokio::main]
 async fn main() {
-    dotenvy::from_filename(".env.development").unwrap();
+    dotenvy::dotenv().ok();
 
     let database_url = std::env::var("DATABASE_URL").unwrap();
 
@@ -30,7 +30,14 @@ async fn main() {
     };
 
     let app = Router::new()
-        .route("/status", get(status::show_status))
+        .route("/api/v1/status", get(status::show_status))
+        .route(
+            "/api/v1/toners",
+            get(toner::show_toners)
+                .post(toner::create_toner)
+                .delete(toner::delete_toner),
+        )
+        .route("/api/v1/toners-count", get(toner::count_toners))
         .with_state(pool);
 
     let addr = env::var("HOST").expect("Erro ao carregar env HOST");
