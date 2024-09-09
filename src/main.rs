@@ -1,5 +1,5 @@
 use axum::{routing::get, Router};
-use handlers::{status, toner};
+use handlers::{drum, status, toner};
 use sqlx::postgres::PgPoolOptions;
 use std::env;
 
@@ -30,14 +30,24 @@ async fn main() {
     };
 
     let app = Router::new()
+        // Status
         .route("/api/v1/status", get(status::show_status))
+        // Toner
         .route(
             "/api/v1/toners",
             get(toner::show_toners)
                 .post(toner::create_toner)
                 .delete(toner::delete_toner),
         )
-        .route("/api/v1/toners-count", get(toner::count_toners))
+        .route("/api/v1/toner-count", get(toner::count_toners))
+        // Drums
+        .route(
+            "/api/v1/drums",
+            get(drum::show_drums)
+                .post(drum::create_drum)
+                .delete(drum::delete_drum),
+        )
+        .route("/api/v1/drum-count", get(drum::count_drums))
         .with_state(pool);
 
     let addr = env::var("HOST").expect("Erro ao carregar env HOST");
