@@ -23,7 +23,7 @@ pub async fn create_toner(
     State(pool): State<PgPool>,
     Json(request): Json<CreateTonerRequest>,
 ) -> impl IntoResponse {
-    let new_ticket = Toner::new(&request.name, &request.color);
+    let new_toner = Toner::new(&request.name, &request.color);
 
     match sqlx::query(
         "
@@ -31,9 +31,9 @@ pub async fn create_toner(
         VALUES ($1, $2, $3)
         ",
     )
-    .bind(new_ticket.id)
-    .bind(&new_ticket.name)
-    .bind(&new_ticket.color)
+    .bind(new_toner.id)
+    .bind(&new_toner.name)
+    .bind(&new_toner.color)
     .execute(&pool)
     .await
     {
