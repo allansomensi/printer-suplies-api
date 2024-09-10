@@ -22,6 +22,7 @@ pub fn routes(state: Arc<AppState>) -> Router {
                             "/toners",
                             get(toner::show_toners)
                                 .post(toner::create_toner)
+                                .put(toner::update_toner)
                                 .delete(toner::delete_toner),
                         )
                         // Drums
@@ -30,6 +31,7 @@ pub fn routes(state: Arc<AppState>) -> Router {
                             "/drums",
                             get(drum::show_drums)
                                 .post(drum::create_drum)
+                                .put(drum::update_drum)
                                 .delete(drum::delete_drum),
                         ),
                 )
@@ -39,6 +41,7 @@ pub fn routes(state: Arc<AppState>) -> Router {
                     "/printers",
                     get(printer::show_printers)
                         .post(printer::create_printer)
+                        .put(printer::update_printer)
                         .delete(printer::delete_printer),
                 )
                 // Brands
@@ -47,6 +50,7 @@ pub fn routes(state: Arc<AppState>) -> Router {
                     "/brands",
                     get(brand::show_brands)
                         .post(brand::create_brand)
+                        .put(brand::update_brand)
                         .delete(brand::delete_brand),
                 )
                 .route("/status", get(status::show_status)),

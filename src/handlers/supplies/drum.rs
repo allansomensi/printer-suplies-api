@@ -4,7 +4,7 @@ use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 
 use crate::models::{
     database::AppState,
-    supplies::drum::{CreateDrumRequest, DeleteDrumRequest, Drum},
+    supplies::drum::{CreateDrumRequest, DeleteDrumRequest, Drum, UpdateDrumRequest},
 };
 
 pub async fn show_drums(State(state): State<Arc<AppState>>) -> Json<Vec<Drum>> {
@@ -42,6 +42,24 @@ pub async fn create_drum(
     .await
     {
         Ok(_) => StatusCode::CREATED,
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+    }
+}
+
+pub async fn update_drum(
+    State(state): State<Arc<AppState>>,
+    Json(request): Json<UpdateDrumRequest>,
+) -> impl IntoResponse {
+    let drum_id = request.id;
+    let new_name = request.name;
+
+    match sqlx::query(r#"UPDATE drums SET name = $1 WHERE id = $2"#)
+        .bind(&new_name)
+        .bind(drum_id)
+        .execute(&state.db)
+        .await
+    {
+        Ok(_) => StatusCode::OK,
         Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
     }
 }

@@ -4,7 +4,7 @@ use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 
 use crate::models::{
     database::AppState,
-    supplies::toner::{CreateTonerRequest, DeleteTonerRequest, Toner},
+    supplies::toner::{CreateTonerRequest, DeleteTonerRequest, Toner, UpdateTonerRequest},
 };
 
 pub async fn show_toners(State(state): State<Arc<AppState>>) -> Json<Vec<Toner>> {
@@ -43,6 +43,26 @@ pub async fn create_toner(
     .await
     {
         Ok(_) => StatusCode::CREATED,
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+    }
+}
+
+pub async fn update_toner(
+    State(state): State<Arc<AppState>>,
+    Json(request): Json<UpdateTonerRequest>,
+) -> impl IntoResponse {
+    let toner_id = request.id;
+    let new_name = request.name;
+    let new_color = request.color;
+
+    match sqlx::query(r#"UPDATE toners SET name = $1, color = $2 WHERE id = $2"#)
+        .bind(&new_name)
+        .bind(&new_color)
+        .bind(toner_id)
+        .execute(&state.db)
+        .await
+    {
+        Ok(_) => StatusCode::OK,
         Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
     }
 }

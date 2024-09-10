@@ -23,6 +23,12 @@ pub struct CreateBrandRequest {
 }
 
 #[derive(Deserialize, Serialize)]
+pub struct UpdateBrandRequest {
+    pub id: Uuid,
+    pub name: String,
+}
+
+#[derive(Deserialize, Serialize)]
 pub struct DeleteBrandRequest {
     pub id: Uuid,
 }

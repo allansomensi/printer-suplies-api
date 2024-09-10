@@ -35,6 +35,16 @@ pub struct CreatePrinterRequest {
 }
 
 #[derive(Deserialize, Serialize)]
+pub struct UpdatePrinterRequest {
+    pub id: Uuid,
+    pub name: String,
+    pub model: String,
+    pub brand: String,
+    pub toner: String,
+    pub drum: String,
+}
+
+#[derive(Deserialize, Serialize)]
 pub struct DeletePrinterRequest {
     pub id: Uuid,
 }

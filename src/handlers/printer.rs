@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use crate::models::{
     database::AppState,
-    printer::{CreatePrinterRequest, DeletePrinterRequest, Printer},
+    printer::{CreatePrinterRequest, DeletePrinterRequest, Printer, UpdatePrinterRequest},
 };
 
 pub async fn show_printers(State(state): State<Arc<AppState>>) -> Json<Vec<Printer>> {
@@ -53,6 +53,36 @@ pub async fn create_printer(
     .await
     {
         Ok(_) => StatusCode::CREATED,
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+    }
+}
+
+pub async fn update_printer(
+    State(state): State<Arc<AppState>>,
+    Json(request): Json<UpdatePrinterRequest>,
+) -> impl IntoResponse {
+    let printer_id = request.id;
+    let new_name = request.name;
+    let new_model = request.model;
+    let new_brand = request.brand;
+    let new_toner = request.toner;
+    let new_drum = request.drum;
+
+    match sqlx::query(
+        r#"UPDATE printers 
+    SET name = $1, model = $2, brand = $3, toner = $4, drum = $5 
+    WHERE id = $6"#,
+    )
+    .bind(&new_name)
+    .bind(&new_model)
+    .bind(&new_brand)
+    .bind(&new_toner)
+    .bind(&new_drum)
+    .bind(printer_id)
+    .execute(&state.db)
+    .await
+    {
+        Ok(_) => StatusCode::OK,
         Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
     }
 }

@@ -59,6 +59,13 @@ pub struct CreateTonerRequest {
 }
 
 #[derive(Deserialize, Serialize)]
+pub struct UpdateTonerRequest {
+    pub id: Uuid,
+    pub name: String,
+    pub color: TonerColor,
+}
+
+#[derive(Deserialize, Serialize)]
 pub struct DeleteTonerRequest {
     pub id: Uuid,
 }
