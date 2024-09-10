@@ -33,7 +33,7 @@ pub async fn search_brand(Path(id): Path<Uuid>, State(state): State<Arc<AppState
 
 pub async fn show_brands(State(state): State<Arc<AppState>>) -> Json<Vec<Brand>> {
     Json(
-        sqlx::query_as!(Brand, "SELECT * FROM brands")
+        sqlx::query_as("SELECT * FROM brands")
             .fetch_all(&state.db)
             .await
             .unwrap(),

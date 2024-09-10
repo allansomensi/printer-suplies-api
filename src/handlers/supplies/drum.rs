@@ -23,7 +23,7 @@ pub async fn count_drums(State(state): State<Arc<AppState>>) -> Json<i32> {
 
 pub async fn show_drums(State(state): State<Arc<AppState>>) -> Json<Vec<Drum>> {
     Json(
-        sqlx::query_as!(Drum, r#"SELECT * FROM drums"#)
+        sqlx::query_as(r#"SELECT * FROM drums"#)
             .fetch_all(&state.db)
             .await
             .unwrap(),

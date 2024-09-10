@@ -36,7 +36,7 @@ pub async fn search_printer(
 
 pub async fn show_printers(State(state): State<Arc<AppState>>) -> Json<Vec<Printer>> {
     Json(
-        sqlx::query_as!(Printer, r#"SELECT * FROM printers"#)
+        sqlx::query_as(r#"SELECT * FROM printers"#)
             .fetch_all(&state.db)
             .await
             .unwrap(),
