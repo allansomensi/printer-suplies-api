@@ -27,6 +27,7 @@ pub fn routes(state: Arc<AppState>) -> Router {
                         )
                         // Drums
                         .route("/drum-count", get(drum::count_drums))
+                        .route("/drum/:id", get(drum::search_drum))
                         .route(
                             "/drums",
                             get(drum::show_drums)

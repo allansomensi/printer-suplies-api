@@ -1,11 +1,25 @@
 use std::sync::Arc;
 
-use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
+use axum::{
+    extract::{Path, State},
+    http::StatusCode,
+    response::IntoResponse,
+    Json,
+};
+use uuid::Uuid;
 
 use crate::models::{
     database::AppState,
     supplies::drum::{CreateDrumRequest, DeleteDrumRequest, Drum, UpdateDrumRequest},
 };
+
+pub async fn count_drums(State(state): State<Arc<AppState>>) -> Json<i32> {
+    let row: (i32,) = sqlx::query_as(r#"SELECT COUNT(*)::int FROM drums"#)
+        .fetch_one(&state.db)
+        .await
+        .unwrap();
+    Json(row.0)
+}
 
 pub async fn show_drums(State(state): State<Arc<AppState>>) -> Json<Vec<Drum>> {
     Json(
@@ -16,12 +30,14 @@ pub async fn show_drums(State(state): State<Arc<AppState>>) -> Json<Vec<Drum>> {
     )
 }
 
-pub async fn count_drums(State(state): State<Arc<AppState>>) -> Json<i32> {
-    let row: (i32,) = sqlx::query_as(r#"SELECT COUNT(*)::int FROM drums"#)
-        .fetch_one(&state.db)
-        .await
-        .unwrap();
-    Json(row.0)
+pub async fn search_drum(Path(id): Path<Uuid>, State(state): State<Arc<AppState>>) -> Json<Drum> {
+    Json(
+        sqlx::query_as("SELECT * FROM drums WHERE id = $1;")
+            .bind(id)
+            .fetch_one(&state.db)
+            .await
+            .unwrap(),
+    )
 }
 
 pub async fn create_drum(
