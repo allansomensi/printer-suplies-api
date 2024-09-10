@@ -22,7 +22,7 @@ pub struct Toner {
 impl Toner {
     pub fn new(name: &str, color: TonerColor) -> Self {
         Toner {
-            id: Uuid::now_v7(),
+            id: Uuid::new_v4(),
             name: String::from(name),
             color,
         }

@@ -15,7 +15,7 @@ pub struct Printer {
 impl Printer {
     pub fn new(name: &str, model: &str, brand: Uuid, toner: Uuid, drum: Uuid) -> Self {
         Printer {
-            id: Uuid::now_v7(),
+            id: Uuid::new_v4(),
             name: String::from(name),
             model: String::from(model),
             brand,

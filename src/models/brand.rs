@@ -11,7 +11,7 @@ pub struct Brand {
 impl Brand {
     pub fn new(name: &str) -> Self {
         Brand {
-            id: Uuid::now_v7(),
+            id: Uuid::new_v4(),
             name: String::from(name),
         }
     }
