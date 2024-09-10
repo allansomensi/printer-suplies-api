@@ -1,10 +1,14 @@
 use axum::{routing::get, Router};
 use handlers::{brand, drum, printer, status, toner};
 use sqlx::PgPool;
-use std::env;
+use std::{env, sync::Arc};
 
 mod handlers;
 mod models;
+
+struct AppState {
+    db: PgPool,
+}
 
 #[tokio::main]
 async fn main() {
@@ -60,7 +64,7 @@ async fn main() {
                 .delete(brand::delete_brand),
         )
         .route("/api/v1/brand-count", get(brand::count_brands))
-        .with_state(pool);
+        .with_state(Arc::new(AppState { db: pool.clone() }));
 
     let addr = env::var("HOST").expect("Erro ao carregar env HOST");
     let listener = match tokio::net::TcpListener::bind(&addr).await {

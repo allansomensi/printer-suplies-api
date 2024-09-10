@@ -1,26 +1,30 @@
+use std::sync::Arc;
+
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
-use sqlx::PgPool;
 
-use crate::models::drum::{CreateDrumRequest, DeleteDrumRequest, Drum};
+use crate::{
+    models::drum::{CreateDrumRequest, DeleteDrumRequest, Drum},
+    AppState,
+};
 
-pub async fn show_drums(State(pool): State<PgPool>) -> Json<Vec<Drum>> {
+pub async fn show_drums(State(state): State<Arc<AppState>>) -> Json<Vec<Drum>> {
     let row: Vec<Drum> = sqlx::query_as("SELECT * FROM drums")
-        .fetch_all(&pool)
+        .fetch_all(&state.db)
         .await
         .unwrap();
     Json(row)
 }
 
-pub async fn count_drums(State(pool): State<PgPool>) -> Json<i32> {
+pub async fn count_drums(State(state): State<Arc<AppState>>) -> Json<i32> {
     let row: (i32,) = sqlx::query_as("SELECT COUNT(*)::int FROM drums")
-        .fetch_one(&pool)
+        .fetch_one(&state.db)
         .await
         .unwrap();
     Json(row.0)
 }
 
 pub async fn create_drum(
-    State(pool): State<PgPool>,
+    State(state): State<Arc<AppState>>,
     Json(request): Json<CreateDrumRequest>,
 ) -> impl IntoResponse {
     let new_drum = Drum::new(&request.name);
@@ -33,7 +37,7 @@ pub async fn create_drum(
     )
     .bind(new_drum.id)
     .bind(&new_drum.name)
-    .execute(&pool)
+    .execute(&state.db)
     .await
     {
         Ok(_) => StatusCode::CREATED,
@@ -42,12 +46,12 @@ pub async fn create_drum(
 }
 
 pub async fn delete_drum(
-    State(pool): State<PgPool>,
+    State(state): State<Arc<AppState>>,
     Json(request): Json<DeleteDrumRequest>,
 ) -> impl IntoResponse {
     match sqlx::query("DELETE FROM drums WHERE id = $1")
         .bind(request.id)
-        .execute(&pool)
+        .execute(&state.db)
         .await
     {
         Ok(_) => StatusCode::OK,

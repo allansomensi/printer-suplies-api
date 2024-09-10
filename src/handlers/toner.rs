@@ -1,26 +1,30 @@
+use std::sync::Arc;
+
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
-use sqlx::PgPool;
 
-use crate::models::toner::{CreateTonerRequest, DeleteTonerRequest, Toner};
+use crate::{
+    models::toner::{CreateTonerRequest, DeleteTonerRequest, Toner},
+    AppState,
+};
 
-pub async fn show_toners(State(pool): State<PgPool>) -> Json<Vec<Toner>> {
+pub async fn show_toners(State(state): State<Arc<AppState>>) -> Json<Vec<Toner>> {
     let row: Vec<Toner> = sqlx::query_as("SELECT * FROM toners")
-        .fetch_all(&pool)
+        .fetch_all(&state.db)
         .await
         .unwrap();
     Json(row)
 }
 
-pub async fn count_toners(State(pool): State<PgPool>) -> Json<i32> {
+pub async fn count_toners(State(state): State<Arc<AppState>>) -> Json<i32> {
     let row: (i32,) = sqlx::query_as("SELECT COUNT(*)::int FROM toners")
-        .fetch_one(&pool)
+        .fetch_one(&state.db)
         .await
         .unwrap();
     Json(row.0)
 }
 
 pub async fn create_toner(
-    State(pool): State<PgPool>,
+    State(state): State<Arc<AppState>>,
     Json(request): Json<CreateTonerRequest>,
 ) -> impl IntoResponse {
     let new_toner = Toner::new(&request.name, &request.color);
@@ -34,7 +38,7 @@ pub async fn create_toner(
     .bind(new_toner.id)
     .bind(&new_toner.name)
     .bind(&new_toner.color)
-    .execute(&pool)
+    .execute(&state.db)
     .await
     {
         Ok(_) => StatusCode::CREATED,
@@ -43,12 +47,12 @@ pub async fn create_toner(
 }
 
 pub async fn delete_toner(
-    State(pool): State<PgPool>,
+    State(state): State<Arc<AppState>>,
     Json(request): Json<DeleteTonerRequest>,
 ) -> impl IntoResponse {
     match sqlx::query("DELETE FROM toners WHERE id = $1")
         .bind(request.id)
-        .execute(&pool)
+        .execute(&state.db)
         .await
     {
         Ok(_) => StatusCode::OK,

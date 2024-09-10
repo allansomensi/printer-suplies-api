@@ -1,26 +1,30 @@
+use std::sync::Arc;
+
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
-use sqlx::PgPool;
 
-use crate::models::brand::{Brand, CreateBrandRequest, DeleteBrandRequest};
+use crate::{
+    models::brand::{Brand, CreateBrandRequest, DeleteBrandRequest},
+    AppState,
+};
 
-pub async fn show_brands(State(pool): State<PgPool>) -> Json<Vec<Brand>> {
+pub async fn show_brands(State(state): State<Arc<AppState>>) -> Json<Vec<Brand>> {
     let row: Vec<Brand> = sqlx::query_as("SELECT * FROM brands")
-        .fetch_all(&pool)
+        .fetch_all(&state.db)
         .await
         .unwrap();
     Json(row)
 }
 
-pub async fn count_brands(State(pool): State<PgPool>) -> Json<i32> {
+pub async fn count_brands(State(state): State<Arc<AppState>>) -> Json<i32> {
     let row: (i32,) = sqlx::query_as("SELECT COUNT(*)::int FROM brands")
-        .fetch_one(&pool)
+        .fetch_one(&state.db)
         .await
         .unwrap();
     Json(row.0)
 }
 
 pub async fn create_brand(
-    State(pool): State<PgPool>,
+    State(state): State<Arc<AppState>>,
     Json(request): Json<CreateBrandRequest>,
 ) -> impl IntoResponse {
     let new_brand = Brand::new(&request.name);
@@ -33,7 +37,7 @@ pub async fn create_brand(
     )
     .bind(new_brand.id)
     .bind(&new_brand.name)
-    .execute(&pool)
+    .execute(&state.db)
     .await
     {
         Ok(_) => StatusCode::CREATED,
@@ -42,12 +46,12 @@ pub async fn create_brand(
 }
 
 pub async fn delete_brand(
-    State(pool): State<PgPool>,
+    State(state): State<Arc<AppState>>,
     Json(request): Json<DeleteBrandRequest>,
 ) -> impl IntoResponse {
     match sqlx::query("DELETE FROM brands WHERE id = $1")
         .bind(request.id)
-        .execute(&pool)
+        .execute(&state.db)
         .await
     {
         Ok(_) => StatusCode::OK,

@@ -1,29 +1,31 @@
-use std::str::FromStr;
+use std::{str::FromStr, sync::Arc};
 
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
-use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::models::printer::{CreatePrinterRequest, DeletePrinterRequest, Printer};
+use crate::{
+    models::printer::{CreatePrinterRequest, DeletePrinterRequest, Printer},
+    AppState,
+};
 
-pub async fn show_printers(State(pool): State<PgPool>) -> Json<Vec<Printer>> {
+pub async fn show_printers(State(state): State<Arc<AppState>>) -> Json<Vec<Printer>> {
     let row: Vec<Printer> = sqlx::query_as("SELECT * FROM printers")
-        .fetch_all(&pool)
+        .fetch_all(&state.db)
         .await
         .unwrap();
     Json(row)
 }
 
-pub async fn count_printers(State(pool): State<PgPool>) -> Json<i32> {
+pub async fn count_printers(State(state): State<Arc<AppState>>) -> Json<i32> {
     let row: (i32,) = sqlx::query_as("SELECT COUNT(*)::int FROM printers")
-        .fetch_one(&pool)
+        .fetch_one(&state.db)
         .await
         .unwrap();
     Json(row.0)
 }
 
 pub async fn create_printer(
-    State(pool): State<PgPool>,
+    State(state): State<Arc<AppState>>,
     Json(request): Json<CreatePrinterRequest>,
 ) -> impl IntoResponse {
     let new_printer = Printer::new(
@@ -46,7 +48,7 @@ pub async fn create_printer(
     .bind(&new_printer.brand)
     .bind(&new_printer.toner)
     .bind(&new_printer.drum)
-    .execute(&pool)
+    .execute(&state.db)
     .await
     {
         Ok(_) => StatusCode::CREATED,
@@ -55,12 +57,12 @@ pub async fn create_printer(
 }
 
 pub async fn delete_printer(
-    State(pool): State<PgPool>,
+    State(state): State<Arc<AppState>>,
     Json(request): Json<DeletePrinterRequest>,
 ) -> impl IntoResponse {
     match sqlx::query("DELETE FROM printers WHERE id = $1")
         .bind(request.id)
-        .execute(&pool)
+        .execute(&state.db)
         .await
     {
         Ok(_) => StatusCode::OK,
