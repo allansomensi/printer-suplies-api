@@ -1,11 +1,35 @@
 use std::sync::Arc;
 
-use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
+use axum::{
+    extract::{Path, State},
+    http::StatusCode,
+    response::IntoResponse,
+    Json,
+};
+use uuid::Uuid;
 
 use crate::models::{
     brand::{Brand, CreateBrandRequest, DeleteBrandRequest, UpdateBrandRequest},
     database::AppState,
 };
+
+pub async fn count_brands(State(state): State<Arc<AppState>>) -> Json<i32> {
+    let row: (i32,) = sqlx::query_as("SELECT COUNT(*)::int FROM brands")
+        .fetch_one(&state.db)
+        .await
+        .unwrap();
+    Json(row.0)
+}
+
+pub async fn search_brand(Path(id): Path<Uuid>, State(state): State<Arc<AppState>>) -> Json<Brand> {
+    Json(
+        sqlx::query_as("SELECT * FROM brands WHERE id = $1;")
+            .bind(id)
+            .fetch_one(&state.db)
+            .await
+            .unwrap(),
+    )
+}
 
 pub async fn show_brands(State(state): State<Arc<AppState>>) -> Json<Vec<Brand>> {
     Json(
@@ -14,14 +38,6 @@ pub async fn show_brands(State(state): State<Arc<AppState>>) -> Json<Vec<Brand>>
             .await
             .unwrap(),
     )
-}
-
-pub async fn count_brands(State(state): State<Arc<AppState>>) -> Json<i32> {
-    let row: (i32,) = sqlx::query_as("SELECT COUNT(*)::int FROM brands")
-        .fetch_one(&state.db)
-        .await
-        .unwrap();
-    Json(row.0)
 }
 
 pub async fn create_brand(

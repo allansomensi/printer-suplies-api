@@ -47,6 +47,7 @@ pub fn routes(state: Arc<AppState>) -> Router {
                 )
                 // Brands
                 .route("/brand-count", get(brand::count_brands))
+                .route("/brand/:id", get(brand::search_brand))
                 .route(
                     "/brands",
                     get(brand::show_brands)
