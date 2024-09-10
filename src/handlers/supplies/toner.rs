@@ -27,13 +27,13 @@ pub async fn create_toner(
     State(state): State<Arc<AppState>>,
     Json(request): Json<CreateTonerRequest>,
 ) -> impl IntoResponse {
-    let new_toner = Toner::new(&request.name, &request.color);
+    let new_toner = Toner::new(&request.name, request.color);
 
     match sqlx::query(
-        "
+        r#"
         INSERT INTO toners (id, name, color)
         VALUES ($1, $2, $3)
-        ",
+        "#,
     )
     .bind(new_toner.id)
     .bind(&new_toner.name)
