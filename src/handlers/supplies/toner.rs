@@ -8,15 +8,16 @@ use crate::models::{
 };
 
 pub async fn show_toners(State(state): State<Arc<AppState>>) -> Json<Vec<Toner>> {
-    let row: Vec<Toner> = sqlx::query_as("SELECT * FROM toners")
-        .fetch_all(&state.db)
-        .await
-        .unwrap();
-    Json(row)
+    Json(
+        sqlx::query_as!(Toner, r#"SELECT * FROM toners"#)
+            .fetch_all(&state.db)
+            .await
+            .unwrap(),
+    )
 }
 
 pub async fn count_toners(State(state): State<Arc<AppState>>) -> Json<i32> {
-    let row: (i32,) = sqlx::query_as("SELECT COUNT(*)::int FROM toners")
+    let row: (i32,) = sqlx::query_as(r#"SELECT COUNT(*)::int FROM toners"#)
         .fetch_one(&state.db)
         .await
         .unwrap();
@@ -50,7 +51,7 @@ pub async fn delete_toner(
     State(state): State<Arc<AppState>>,
     Json(request): Json<DeleteTonerRequest>,
 ) -> impl IntoResponse {
-    match sqlx::query("DELETE FROM toners WHERE id = $1")
+    match sqlx::query(r#"DELETE FROM toners WHERE id = $1"#)
         .bind(request.id)
         .execute(&state.db)
         .await

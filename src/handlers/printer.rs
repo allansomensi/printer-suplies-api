@@ -9,11 +9,12 @@ use crate::models::{
 };
 
 pub async fn show_printers(State(state): State<Arc<AppState>>) -> Json<Vec<Printer>> {
-    let row: Vec<Printer> = sqlx::query_as(r#"SELECT * FROM printers"#)
-        .fetch_all(&state.db)
-        .await
-        .unwrap();
-    Json(row)
+    Json(
+        sqlx::query_as!(Printer, r#"SELECT * FROM printers"#)
+            .fetch_all(&state.db)
+            .await
+            .unwrap(),
+    )
 }
 
 pub async fn count_printers(State(state): State<Arc<AppState>>) -> Json<i32> {

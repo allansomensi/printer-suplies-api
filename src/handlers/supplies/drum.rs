@@ -8,15 +8,16 @@ use crate::models::{
 };
 
 pub async fn show_drums(State(state): State<Arc<AppState>>) -> Json<Vec<Drum>> {
-    let row: Vec<Drum> = sqlx::query_as("SELECT * FROM drums")
-        .fetch_all(&state.db)
-        .await
-        .unwrap();
-    Json(row)
+    Json(
+        sqlx::query_as!(Drum, r#"SELECT * FROM drums"#)
+            .fetch_all(&state.db)
+            .await
+            .unwrap(),
+    )
 }
 
 pub async fn count_drums(State(state): State<Arc<AppState>>) -> Json<i32> {
-    let row: (i32,) = sqlx::query_as("SELECT COUNT(*)::int FROM drums")
+    let row: (i32,) = sqlx::query_as(r#"SELECT COUNT(*)::int FROM drums"#)
         .fetch_one(&state.db)
         .await
         .unwrap();
@@ -30,10 +31,10 @@ pub async fn create_drum(
     let new_drum = Drum::new(&request.name);
 
     match sqlx::query(
-        "
+        r#"
         INSERT INTO drums (id, name)
         VALUES ($1, $2)
-        ",
+        "#,
     )
     .bind(new_drum.id)
     .bind(&new_drum.name)
@@ -49,7 +50,7 @@ pub async fn delete_drum(
     State(state): State<Arc<AppState>>,
     Json(request): Json<DeleteDrumRequest>,
 ) -> impl IntoResponse {
-    match sqlx::query("DELETE FROM drums WHERE id = $1")
+    match sqlx::query(r#"DELETE FROM drums WHERE id = $1"#)
         .bind(request.id)
         .execute(&state.db)
         .await

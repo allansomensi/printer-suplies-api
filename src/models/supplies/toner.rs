@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
 use uuid::Uuid;
@@ -10,6 +12,27 @@ pub enum TonerColor {
     Cyan,
     Yellow,
     Magenta,
+}
+
+impl FromStr for TonerColor {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "black" => Ok(TonerColor::Black),
+            "cyan" => Ok(TonerColor::Cyan),
+            "yellow" => Ok(TonerColor::Yellow),
+            "magenta" => Ok(TonerColor::Magenta),
+            _ => Err(format!("Cor inválida! Erro: {}", s)),
+        }
+    }
+}
+
+impl From<String> for TonerColor {
+    fn from(s: String) -> Self {
+        s.parse()
+            .unwrap_or_else(|_| panic!("Erro ao converter cor: {}", s))
+    }
 }
 
 #[derive(Deserialize, Serialize, FromRow)]

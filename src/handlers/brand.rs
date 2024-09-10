@@ -8,11 +8,12 @@ use crate::models::{
 };
 
 pub async fn show_brands(State(state): State<Arc<AppState>>) -> Json<Vec<Brand>> {
-    let row: Vec<Brand> = sqlx::query_as("SELECT * FROM brands")
-        .fetch_all(&state.db)
-        .await
-        .unwrap();
-    Json(row)
+    Json(
+        sqlx::query_as!(Brand, "SELECT * FROM brands")
+            .fetch_all(&state.db)
+            .await
+            .unwrap(),
+    )
 }
 
 pub async fn count_brands(State(state): State<Arc<AppState>>) -> Json<i32> {

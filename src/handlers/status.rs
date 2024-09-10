@@ -1,6 +1,6 @@
 use std::{env, sync::Arc};
 
-use axum::{extract::State, response::IntoResponse, Json};
+use axum::{extract::State, Json};
 use chrono::Utc;
 
 use crate::models::{
@@ -8,13 +8,13 @@ use crate::models::{
     status::{Database, Dependencies, Status},
 };
 
-pub async fn show_status(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+pub async fn show_status(State(state): State<Arc<AppState>>) -> Json<Status> {
     let db_version: (String,) = sqlx::query_as(r#"SHOW server_version;"#)
         .fetch_one(&state.db)
         .await
         .unwrap();
 
-    let max_connections: (String,) = sqlx::query_as("SHOW max_connections;")
+    let max_connections: (String,) = sqlx::query_as(r#"SHOW max_connections;"#)
         .fetch_one(&state.db)
         .await
         .unwrap();
@@ -34,10 +34,8 @@ pub async fn show_status(State(state): State<Arc<AppState>>) -> impl IntoRespons
         opened_connections,
     };
 
-    let status = Status {
+    Json(Status {
         updated_at: Utc::now(),
         dependencies: Dependencies { database },
-    };
-
-    Json(status)
+    })
 }
