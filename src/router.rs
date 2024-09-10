@@ -38,6 +38,7 @@ pub fn routes(state: Arc<AppState>) -> Router {
                 )
                 // Printers
                 .route("/printer-count", get(printer::count_printers))
+                .route("/printer/:id", get(printer::search_printer))
                 .route(
                     "/printers",
                     get(printer::show_printers)
