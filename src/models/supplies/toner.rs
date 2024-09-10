@@ -28,13 +28,6 @@ impl FromStr for TonerColor {
     }
 }
 
-impl From<String> for TonerColor {
-    fn from(s: String) -> Self {
-        s.parse()
-            .unwrap_or_else(|_| panic!("Erro ao converter cor: {}", s))
-    }
-}
-
 #[derive(Deserialize, Serialize, FromRow)]
 pub struct Toner {
     pub id: Uuid,
