@@ -18,6 +18,7 @@ pub fn routes(state: Arc<AppState>) -> Router {
                     Router::new()
                         // Toners
                         .route("/toner-count", get(toner::count_toners))
+                        .route("/toner/:id", get(toner::search_toner))
                         .route(
                             "/toners",
                             get(toner::show_toners)

@@ -1,20 +1,17 @@
 use std::sync::Arc;
 
-use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
+use axum::{
+    extract::{Path, State},
+    http::StatusCode,
+    response::IntoResponse,
+    Json,
+};
+use uuid::Uuid;
 
 use crate::models::{
     database::AppState,
     supplies::toner::{CreateTonerRequest, DeleteTonerRequest, Toner, UpdateTonerRequest},
 };
-
-pub async fn show_toners(State(state): State<Arc<AppState>>) -> Json<Vec<Toner>> {
-    Json(
-        sqlx::query_as!(Toner, r#"SELECT * FROM toners"#)
-            .fetch_all(&state.db)
-            .await
-            .unwrap(),
-    )
-}
 
 pub async fn count_toners(State(state): State<Arc<AppState>>) -> Json<i32> {
     let row: (i32,) = sqlx::query_as(r#"SELECT COUNT(*)::int FROM toners"#)
@@ -22,6 +19,25 @@ pub async fn count_toners(State(state): State<Arc<AppState>>) -> Json<i32> {
         .await
         .unwrap();
     Json(row.0)
+}
+
+pub async fn search_toner(Path(id): Path<Uuid>, State(state): State<Arc<AppState>>) -> Json<Toner> {
+    Json(
+        sqlx::query_as(r#"SELECT * FROM toners WHERE id = $1;"#)
+            .bind(id)
+            .fetch_one(&state.db)
+            .await
+            .unwrap(),
+    )
+}
+
+pub async fn show_toners(State(state): State<Arc<AppState>>) -> Json<Vec<Toner>> {
+    Json(
+        sqlx::query_as(r#"SELECT * FROM toners"#)
+            .fetch_all(&state.db)
+            .await
+            .unwrap(),
+    )
 }
 
 pub async fn create_toner(
