@@ -71,7 +71,7 @@ pub async fn update_toner(
     let new_name = request.name;
     let new_color = request.color;
 
-    match sqlx::query(r#"UPDATE toners SET name = $1, color = $2 WHERE id = $2"#)
+    match sqlx::query(r#"UPDATE toners SET name = $1, color = $2 WHERE id = $3"#)
         .bind(&new_name)
         .bind(&new_color)
         .bind(toner_id)
