@@ -1,0 +1,724 @@
+{
+	"info": {
+		"_postman_id": "2b2c8dd6-0193-4d67-ba9d-b2f8672c5d48",
+		"name": "printer-supplies-api",
+		"description": "REST API for printer supplies management, for data analysis and control.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38161000"
+	},
+	"item": [
+		{
+			"name": "api",
+			"item": [
+				{
+					"name": "v1",
+					"item": [
+						{
+							"name": "supplies",
+							"item": [
+								{
+									"name": "drums",
+									"item": [
+										{
+											"name": "count_drums",
+											"request": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "localhost:8000/api/v1/supplies/drum-count",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"supplies",
+														"drum-count"
+													]
+												},
+												"description": "Provides the count of drums registered in the database."
+											},
+											"response": []
+										},
+										{
+											"name": "search_drum",
+											"request": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "localhost:8000/api/v1/supplies/drum/5c79142c-ace2-451d-a4af-897f943ef771",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"supplies",
+														"drum",
+														"5c79142c-ace2-451d-a4af-897f943ef771"
+													]
+												},
+												"description": "Searches for a drum by its ID."
+											},
+											"response": []
+										},
+										{
+											"name": "show_drums",
+											"request": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "localhost:8000/api/v1/supplies/drums",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"supplies",
+														"drums"
+													]
+												},
+												"description": "Shows all drums."
+											},
+											"response": []
+										},
+										{
+											"name": "create_drum",
+											"request": {
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"name\": \"DR-B431\"\n}\n",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "localhost:8000/api/v1/supplies/drums",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"supplies",
+														"drums"
+													]
+												},
+												"description": "Creates a new drum."
+											},
+											"response": []
+										},
+										{
+											"name": "update_drum",
+											"request": {
+												"method": "PUT",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"id\": \"222b6de2-262c-4010-85e4-9d65a624da06\",\n    \"name\": \"DR-B431_updated\"\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "localhost:8000/api/v1/supplies/drums",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"supplies",
+														"drums"
+													]
+												},
+												"description": "Updates an existing drum."
+											},
+											"response": []
+										},
+										{
+											"name": "delete_drum",
+											"request": {
+												"method": "DELETE",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"id\": \"222b6de2-262c-4010-85e4-9d65a624da06\"\n}\n",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "localhost:8000/api/v1/supplies/drums",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"supplies",
+														"drums"
+													]
+												},
+												"description": "Deletes a drum by its ID."
+											},
+											"response": []
+										}
+									],
+									"description": "Endpoints for the CRUD of drums."
+								},
+								{
+									"name": "toners",
+									"item": [
+										{
+											"name": "count_toners",
+											"request": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "localhost:8000/api/v1/supplies/toner-count",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"supplies",
+														"toner-count"
+													]
+												},
+												"description": "Provides the count of toners registered in the database."
+											},
+											"response": []
+										},
+										{
+											"name": "search_toner",
+											"request": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "localhost:8000/api/v1/supplies/toner/a750bdee-d64d-40c5-b42b-0cfdb6651aec",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"supplies",
+														"toner",
+														"a750bdee-d64d-40c5-b42b-0cfdb6651aec"
+													]
+												},
+												"description": "Searches for a toner by its ID."
+											},
+											"response": []
+										},
+										{
+											"name": "show_toners",
+											"request": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "localhost:8000/api/v1/supplies/toners",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"supplies",
+														"toners"
+													]
+												},
+												"description": "Shows all toners."
+											},
+											"response": []
+										},
+										{
+											"name": "create_toner",
+											"request": {
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"name\": \"TN-B431\",\n  \"color\": \"black\"\n}\n",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "localhost:8000/api/v1/supplies/toners",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"supplies",
+														"toners"
+													]
+												},
+												"description": "Creates a new toner."
+											},
+											"response": []
+										},
+										{
+											"name": "update_toner",
+											"request": {
+												"method": "PUT",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"id\": \"a750bdee-d64d-40c5-b42b-0cfdb6651aec\",\n    \"name\": \"TN-B431_updated\",\n    \"color\": \"black_updated\"\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "localhost:8000/api/v1/supplies/toners",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"supplies",
+														"toners"
+													]
+												},
+												"description": "Updates an existing toner."
+											},
+											"response": []
+										},
+										{
+											"name": "delete_toner",
+											"request": {
+												"method": "DELETE",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"id\": \"0191d99c-dfde-7c92-99b7-c09289187964\"\n}\n",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "localhost:8000/api/v1/supplies/toners",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"supplies",
+														"toners"
+													]
+												},
+												"description": "Deletes a toner by its ID."
+											},
+											"response": []
+										}
+									],
+									"description": "Endpoints for the CRUD of toners."
+								}
+							],
+							"description": "Endpoints for the CRUDs of supplies."
+						},
+						{
+							"name": "printers",
+							"item": [
+								{
+									"name": "count_printers",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "localhost:8000/api/v1/printer-count",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"printer-count"
+											]
+										},
+										"description": "Provides the count of printers registered in the database."
+									},
+									"response": []
+								},
+								{
+									"name": "search_printer",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "localhost:8000/api/v1/printer/a750bdee-d64d-40c5-b42b-0cfdb6651aec",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"printer",
+												"a750bdee-d64d-40c5-b42b-0cfdb6651aec"
+											]
+										},
+										"description": "Searches for a printer by its ID."
+									},
+									"response": []
+								},
+								{
+									"name": "show_printers",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "localhost:8000/api/v1/printers",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"printers"
+											]
+										},
+										"description": "Shows all printers."
+									},
+									"response": []
+								},
+								{
+									"name": "create_printer",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\": \"Administrative Printer\",\n    \"model\": \"OKI-B431\",\n    \"brand\": \"0191d9e5-62e8-7943-94bb-c06715391748\",\n    \"toner\": \"0191d9e6-1fff-7ad1-a26f-2763423939f1\",\n    \"drum\": \"0191d9e5-eaec-7010-b54d-55c2cfee63b4\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "localhost:8000/api/v1/printers",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"printers"
+											]
+										},
+										"description": "Creates a new printer."
+									},
+									"response": []
+								},
+								{
+									"name": "update_printer",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"id\": \"a750bdee-d64d-40c5-b42b-0cfdb6651aec\",\n    \"name\": \"Administrative Printer --updated--\",\n    \"model\": \"DCP-L6527DW\",\n    \"brand\": \"0191d9e5-62e8-7943-94bb-c06715391748\",\n    \"toner\": \"0191d9e6-1fff-7ad1-a26f-2763423939f1\",\n    \"drum\": \"0191d9e5-eaec-7010-b54d-55c2cfee63b4\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "localhost:8000/api/v1/printers",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"printers"
+											]
+										},
+										"description": "Updates an existing printer."
+									},
+									"response": []
+								},
+								{
+									"name": "delete_printer",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"id\": \"0191d9a8-2cc5-7a71-899d-dde496a53d58\"\n}\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "localhost:8000/api/v1/printers",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"printers"
+											]
+										},
+										"description": "Deletes a printer by its ID."
+									},
+									"response": []
+								}
+							],
+							"description": "Endpoints for the CRUD of printers."
+						},
+						{
+							"name": "brands",
+							"item": [
+								{
+									"name": "count_brands",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "localhost:8000/api/v1/brand-count",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"brand-count"
+											]
+										},
+										"description": "Provides the count of brands registered in the database."
+									},
+									"response": []
+								},
+								{
+									"name": "search_brand",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "localhost:8000/api/v1/brand/c130f1a1-216a-4b36-87a8-165becd30aec",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"brand",
+												"c130f1a1-216a-4b36-87a8-165becd30aec"
+											]
+										},
+										"description": "Searches for a brand by its ID."
+									},
+									"response": []
+								},
+								{
+									"name": "show_brands",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "localhost:8000/api/v1/brands",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"brands"
+											]
+										},
+										"description": "Shows all brands."
+									},
+									"response": []
+								},
+								{
+									"name": "create_brand",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"name\": \"OKI Eletric\"\n}\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "localhost:8000/api/v1/brands",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"brands"
+											]
+										},
+										"description": "Creates a new brand."
+									},
+									"response": []
+								},
+								{
+									"name": "update_brand",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"id\": \"c130f1a1-216a-4b36-87a8-165becd30aec\",\n    \"name\": \"Brother\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "localhost:8000/api/v1/brands",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"brands"
+											]
+										},
+										"description": "Updates an existing brand."
+									},
+									"response": []
+								},
+								{
+									"name": "delete_brand",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"id\": \"0191d9a3-a934-7d51-ad03-d647d9f4fb4a\"\n}\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "localhost:8000/api/v1/brands",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"brands"
+											]
+										},
+										"description": "Deletes a brand by its ID."
+									},
+									"response": []
+								}
+							],
+							"description": "Endpoints for the CRUD of brands."
+						},
+						{
+							"name": "status",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:8000/api/v1/status",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"v1",
+										"status"
+									]
+								},
+								"description": "API status endpoint, contains database information and checks if the connection is healthy."
+							},
+							"response": []
+						}
+					],
+					"description": "API versioning."
+				}
+			],
+			"description": "All API endpoints."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
