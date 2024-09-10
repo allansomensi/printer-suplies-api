@@ -3,9 +3,9 @@ use std::{env, sync::Arc};
 use axum::{extract::State, response::IntoResponse, Json};
 use chrono::Utc;
 
-use crate::{
-    models::status::{Database, Dependencies, Status},
-    AppState,
+use crate::models::{
+    database::AppState,
+    status::{Database, Dependencies, Status},
 };
 
 pub async fn show_status(State(state): State<Arc<AppState>>) -> impl IntoResponse {

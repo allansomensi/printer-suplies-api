@@ -9,7 +9,7 @@ pub struct Brand {
 }
 
 impl Brand {
-    pub fn new(name: &str) -> Brand {
+    pub fn new(name: &str) -> Self {
         Brand {
             id: Uuid::now_v7(),
             name: String::from(name),

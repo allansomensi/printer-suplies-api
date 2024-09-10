@@ -3,13 +3,13 @@ use std::{str::FromStr, sync::Arc};
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 use uuid::Uuid;
 
-use crate::{
-    models::printer::{CreatePrinterRequest, DeletePrinterRequest, Printer},
-    AppState,
+use crate::models::{
+    database::AppState,
+    printer::{CreatePrinterRequest, DeletePrinterRequest, Printer},
 };
 
 pub async fn show_printers(State(state): State<Arc<AppState>>) -> Json<Vec<Printer>> {
-    let row: Vec<Printer> = sqlx::query_as("SELECT * FROM printers")
+    let row: Vec<Printer> = sqlx::query_as(r#"SELECT * FROM printers"#)
         .fetch_all(&state.db)
         .await
         .unwrap();
@@ -17,7 +17,7 @@ pub async fn show_printers(State(state): State<Arc<AppState>>) -> Json<Vec<Print
 }
 
 pub async fn count_printers(State(state): State<Arc<AppState>>) -> Json<i32> {
-    let row: (i32,) = sqlx::query_as("SELECT COUNT(*)::int FROM printers")
+    let row: (i32,) = sqlx::query_as(r#"SELECT COUNT(*)::int FROM printers"#)
         .fetch_one(&state.db)
         .await
         .unwrap();
@@ -37,17 +37,17 @@ pub async fn create_printer(
     );
 
     match sqlx::query(
-        "
+        r#"
         INSERT INTO printers (id, name, model, brand, toner, drum)
         VALUES ($1, $2, $3, $4, $5, $6)
-        ",
+        "#,
     )
     .bind(new_printer.id)
-    .bind(&new_printer.name)
-    .bind(&new_printer.model)
-    .bind(&new_printer.brand)
-    .bind(&new_printer.toner)
-    .bind(&new_printer.drum)
+    .bind(new_printer.name)
+    .bind(new_printer.model)
+    .bind(new_printer.brand)
+    .bind(new_printer.toner)
+    .bind(new_printer.drum)
     .execute(&state.db)
     .await
     {
@@ -60,7 +60,7 @@ pub async fn delete_printer(
     State(state): State<Arc<AppState>>,
     Json(request): Json<DeletePrinterRequest>,
 ) -> impl IntoResponse {
-    match sqlx::query("DELETE FROM printers WHERE id = $1")
+    match sqlx::query(r#"DELETE FROM printers WHERE id = $1"#)
         .bind(request.id)
         .execute(&state.db)
         .await

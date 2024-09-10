@@ -3,26 +3,29 @@ use sqlx::prelude::FromRow;
 use uuid::Uuid;
 
 #[derive(Deserialize, Serialize, FromRow)]
-pub struct Drum {
+pub struct Toner {
     pub id: Uuid,
     pub name: String,
+    pub color: String,
 }
 
-impl Drum {
-    pub fn new(name: &str) -> Drum {
-        Drum {
+impl Toner {
+    pub fn new(name: &str, color: &str) -> Self {
+        Toner {
             id: Uuid::now_v7(),
             name: String::from(name),
+            color: String::from(color),
         }
     }
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct CreateDrumRequest {
+pub struct CreateTonerRequest {
     pub name: String,
+    pub color: String,
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct DeleteDrumRequest {
+pub struct DeleteTonerRequest {
     pub id: Uuid,
 }

@@ -2,9 +2,9 @@ use std::sync::Arc;
 
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 
-use crate::{
-    models::drum::{CreateDrumRequest, DeleteDrumRequest, Drum},
-    AppState,
+use crate::models::{
+    database::AppState,
+    supplies::drum::{CreateDrumRequest, DeleteDrumRequest, Drum},
 };
 
 pub async fn show_drums(State(state): State<Arc<AppState>>) -> Json<Vec<Drum>> {

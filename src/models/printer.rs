@@ -13,7 +13,7 @@ pub struct Printer {
 }
 
 impl Printer {
-    pub fn new(name: &str, model: &str, brand: Uuid, toner: Uuid, drum: Uuid) -> Printer {
+    pub fn new(name: &str, model: &str, brand: Uuid, toner: Uuid, drum: Uuid) -> Self {
         Printer {
             id: Uuid::now_v7(),
             name: String::from(name),

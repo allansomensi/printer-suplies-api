@@ -1,5 +1,5 @@
 pub mod brand;
-pub mod drum;
+pub mod database;
 pub mod printer;
 pub mod status;
-pub mod toner;
+pub mod supplies;

@@ -2,9 +2,9 @@ use std::sync::Arc;
 
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 
-use crate::{
-    models::toner::{CreateTonerRequest, DeleteTonerRequest, Toner},
-    AppState,
+use crate::models::{
+    database::AppState,
+    supplies::toner::{CreateTonerRequest, DeleteTonerRequest, Toner},
 };
 
 pub async fn show_toners(State(state): State<Arc<AppState>>) -> Json<Vec<Toner>> {

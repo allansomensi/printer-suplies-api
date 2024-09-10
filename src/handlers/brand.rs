@@ -2,9 +2,9 @@ use std::sync::Arc;
 
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 
-use crate::{
-    models::brand::{Brand, CreateBrandRequest, DeleteBrandRequest},
-    AppState,
+use crate::models::{
+    brand::{Brand, CreateBrandRequest, DeleteBrandRequest},
+    database::AppState,
 };
 
 pub async fn show_brands(State(state): State<Arc<AppState>>) -> Json<Vec<Brand>> {
@@ -36,7 +36,7 @@ pub async fn create_brand(
         ",
     )
     .bind(new_brand.id)
-    .bind(&new_brand.name)
+    .bind(new_brand.name)
     .execute(&state.db)
     .await
     {
