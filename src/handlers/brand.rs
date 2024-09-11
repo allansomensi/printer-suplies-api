@@ -6,6 +6,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use tracing::{error, info};
 use uuid::Uuid;
 
 use crate::models::{
@@ -14,30 +15,57 @@ use crate::models::{
 };
 
 pub async fn count_brands(State(state): State<Arc<AppState>>) -> Json<i32> {
-    let row: (i32,) = sqlx::query_as("SELECT COUNT(*)::int FROM brands")
-        .fetch_one(&state.db)
-        .await
-        .unwrap();
-    Json(row.0)
+    let brand_count: Result<(i32,), sqlx::Error> =
+        sqlx::query_as(r#"SELECT COUNT(*)::int FROM brands"#)
+            .fetch_one(&state.db)
+            .await;
+
+    match brand_count {
+        Ok((count,)) => {
+            info!("Successfully retrieved brand count: {}", count);
+            Json(count)
+        }
+        Err(e) => {
+            error!("Error retrieving brand count: {e}");
+            Json(0)
+        }
+    }
 }
 
-pub async fn search_brand(Path(id): Path<Uuid>, State(state): State<Arc<AppState>>) -> Json<Brand> {
-    Json(
-        sqlx::query_as("SELECT * FROM brands WHERE id = $1;")
-            .bind(id)
-            .fetch_one(&state.db)
-            .await
-            .unwrap(),
-    )
+pub async fn search_brand(
+    Path(id): Path<Uuid>,
+    State(state): State<Arc<AppState>>,
+) -> Json<Option<Brand>> {
+    match sqlx::query_as::<_, Brand>(r#"SELECT * FROM brands WHERE id = $1;"#)
+        .bind(id)
+        .fetch_one(&state.db)
+        .await
+    {
+        Ok(brand) => {
+            info!("Brand found: {id}");
+            Json(Some(brand))
+        }
+        Err(e) => {
+            error!("Error retrieving brand: {e}");
+            Json(None)
+        }
+    }
 }
 
 pub async fn show_brands(State(state): State<Arc<AppState>>) -> Json<Vec<Brand>> {
-    Json(
-        sqlx::query_as("SELECT * FROM brands")
-            .fetch_all(&state.db)
-            .await
-            .unwrap(),
-    )
+    match sqlx::query_as(r#"SELECT * FROM brands"#)
+        .fetch_all(&state.db)
+        .await
+    {
+        Ok(brands) => {
+            info!("Brands listed successfully");
+            Json(brands)
+        }
+        Err(e) => {
+            error!("Error listing brands: {e}");
+            Json(Vec::new())
+        }
+    }
 }
 
 pub async fn create_brand(
@@ -57,8 +85,14 @@ pub async fn create_brand(
     .execute(&state.db)
     .await
     {
-        Ok(_) => StatusCode::CREATED,
-        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        Ok(_) => {
+            info!("Brand created! ID: {}", &new_brand.id);
+            StatusCode::CREATED
+        }
+        Err(e) => {
+            info!("Error creating brand: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
     }
 }
 
@@ -75,8 +109,14 @@ pub async fn update_brand(
         .execute(&state.db)
         .await
     {
-        Ok(_) => StatusCode::OK,
-        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        Ok(_) => {
+            info!("Brand updated! ID: {}", &brand_id);
+            StatusCode::OK
+        }
+        Err(e) => {
+            info!("Error updating brand: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
     }
 }
 
@@ -89,7 +129,13 @@ pub async fn delete_brand(
         .execute(&state.db)
         .await
     {
-        Ok(_) => StatusCode::OK,
-        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        Ok(_) => {
+            info!("Brand deleted! ID: {}", &request.id);
+            StatusCode::OK
+        }
+        Err(e) => {
+            info!("Error deleting brand: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
     }
 }
