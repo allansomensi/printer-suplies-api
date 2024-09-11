@@ -7,6 +7,8 @@ mod server;
 async fn main() {
     dotenvy::dotenv().ok();
 
+    tracing_subscriber::fmt().init();
+
     println!("🌟 Printer Supplies API 🌟");
 
     server::run().await.unwrap();
