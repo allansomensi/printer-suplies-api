@@ -2,6 +2,7 @@ use std::{env, sync::Arc};
 
 use axum::{extract::State, Json};
 use chrono::Utc;
+use tracing::info;
 
 use crate::models::{
     database::AppState,
@@ -34,6 +35,7 @@ pub async fn show_status(State(state): State<Arc<AppState>>) -> Json<Status> {
         opened_connections,
     };
 
+    info!("Status queried");
     Json(Status {
         updated_at: Utc::now(),
         dependencies: Dependencies { database },
