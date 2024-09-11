@@ -6,6 +6,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use tracing::{error, info};
 use uuid::Uuid;
 
 use crate::models::{
@@ -14,33 +15,57 @@ use crate::models::{
 };
 
 pub async fn count_printers(State(state): State<Arc<AppState>>) -> Json<i32> {
-    let row: (i32,) = sqlx::query_as(r#"SELECT COUNT(*)::int FROM printers"#)
-        .fetch_one(&state.db)
-        .await
-        .unwrap();
-    Json(row.0)
+    let printer_count: Result<(i32,), sqlx::Error> =
+        sqlx::query_as(r#"SELECT COUNT(*)::int FROM printers"#)
+            .fetch_one(&state.db)
+            .await;
+
+    match printer_count {
+        Ok((count,)) => {
+            info!("Successfully retrieved printer count: {}", count);
+            Json(count)
+        }
+        Err(e) => {
+            error!("Error retrieving printer count: {e}");
+            Json(0)
+        }
+    }
 }
 
 pub async fn search_printer(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-) -> Json<Printer> {
-    Json(
-        sqlx::query_as(r#"SELECT * FROM printers WHERE id = $1;"#)
-            .bind(id)
-            .fetch_one(&state.db)
-            .await
-            .unwrap(),
-    )
+) -> Json<Option<Printer>> {
+    match sqlx::query_as::<_, Printer>(r#"SELECT * FROM printers WHERE id = $1;"#)
+        .bind(id)
+        .fetch_one(&state.db)
+        .await
+    {
+        Ok(printer) => {
+            info!("Printer found: {id}");
+            Json(Some(printer))
+        }
+        Err(e) => {
+            error!("Error retrieving printer: {e}");
+            Json(None)
+        }
+    }
 }
 
 pub async fn show_printers(State(state): State<Arc<AppState>>) -> Json<Vec<Printer>> {
-    Json(
-        sqlx::query_as(r#"SELECT * FROM printers"#)
-            .fetch_all(&state.db)
-            .await
-            .unwrap(),
-    )
+    match sqlx::query_as(r#"SELECT * FROM printers"#)
+        .fetch_all(&state.db)
+        .await
+    {
+        Ok(printers) => {
+            info!("Printers listed successfully");
+            Json(printers)
+        }
+        Err(e) => {
+            error!("Error listing printers: {e}");
+            Json(Vec::new())
+        }
+    }
 }
 
 pub async fn create_printer(
@@ -70,8 +95,14 @@ pub async fn create_printer(
     .execute(&state.db)
     .await
     {
-        Ok(_) => StatusCode::CREATED,
-        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        Ok(_) => {
+            info!("Printer created! ID: {}", &new_printer.id);
+            StatusCode::CREATED
+        }
+        Err(e) => {
+            info!("Error creating printer: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
     }
 }
 
@@ -100,8 +131,14 @@ pub async fn update_printer(
     .execute(&state.db)
     .await
     {
-        Ok(_) => StatusCode::OK,
-        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        Ok(_) => {
+            info!("Printer updated! ID: {}", &printer_id);
+            StatusCode::OK
+        }
+        Err(e) => {
+            info!("Error updating printer: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
     }
 }
 
@@ -114,7 +151,13 @@ pub async fn delete_printer(
         .execute(&state.db)
         .await
     {
-        Ok(_) => StatusCode::OK,
-        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        Ok(_) => {
+            info!("Printer deleted! ID: {}", &request.id);
+            StatusCode::OK
+        }
+        Err(e) => {
+            info!("Error deleting printer: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
     }
 }
