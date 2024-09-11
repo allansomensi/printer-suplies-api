@@ -6,6 +6,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use tracing::{error, info};
 use uuid::Uuid;
 
 use crate::models::{
@@ -14,30 +15,57 @@ use crate::models::{
 };
 
 pub async fn count_drums(State(state): State<Arc<AppState>>) -> Json<i32> {
-    let row: (i32,) = sqlx::query_as(r#"SELECT COUNT(*)::int FROM drums"#)
+    let drum_count: Result<(i32,), sqlx::Error> =
+        sqlx::query_as(r#"SELECT COUNT(*)::int FROM drums"#)
+            .fetch_one(&state.db)
+            .await;
+
+    match drum_count {
+        Ok((count,)) => {
+            info!("Successfully retrieved drum count: {}", count);
+            Json(count)
+        }
+        Err(e) => {
+            error!("Error retrieving drum count: {e}");
+            Json(0)
+        }
+    }
+}
+
+pub async fn search_drum(
+    Path(id): Path<Uuid>,
+    State(state): State<Arc<AppState>>,
+) -> Json<Option<Drum>> {
+    match sqlx::query_as::<_, Drum>(r#"SELECT * FROM drums WHERE id = $1;"#)
+        .bind(id)
         .fetch_one(&state.db)
         .await
-        .unwrap();
-    Json(row.0)
+    {
+        Ok(drum) => {
+            info!("Drum found: {id}");
+            Json(Some(drum))
+        }
+        Err(e) => {
+            error!("Error retrieving drum: {e}");
+            Json(None)
+        }
+    }
 }
 
 pub async fn show_drums(State(state): State<Arc<AppState>>) -> Json<Vec<Drum>> {
-    Json(
-        sqlx::query_as(r#"SELECT * FROM drums"#)
-            .fetch_all(&state.db)
-            .await
-            .unwrap(),
-    )
-}
-
-pub async fn search_drum(Path(id): Path<Uuid>, State(state): State<Arc<AppState>>) -> Json<Drum> {
-    Json(
-        sqlx::query_as("SELECT * FROM drums WHERE id = $1;")
-            .bind(id)
-            .fetch_one(&state.db)
-            .await
-            .unwrap(),
-    )
+    match sqlx::query_as(r#"SELECT * FROM drums"#)
+        .fetch_all(&state.db)
+        .await
+    {
+        Ok(drums) => {
+            info!("Drums listed successfully");
+            Json(drums)
+        }
+        Err(e) => {
+            error!("Error listing drums: {e}");
+            Json(Vec::new())
+        }
+    }
 }
 
 pub async fn create_drum(
@@ -57,8 +85,14 @@ pub async fn create_drum(
     .execute(&state.db)
     .await
     {
-        Ok(_) => StatusCode::CREATED,
-        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        Ok(_) => {
+            info!("Drum created! ID: {}", &new_drum.id);
+            StatusCode::CREATED
+        }
+        Err(e) => {
+            info!("Error creating drum: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
     }
 }
 
@@ -75,8 +109,14 @@ pub async fn update_drum(
         .execute(&state.db)
         .await
     {
-        Ok(_) => StatusCode::OK,
-        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        Ok(_) => {
+            info!("Drum updated! ID: {}", &drum_id);
+            StatusCode::OK
+        }
+        Err(e) => {
+            info!("Error updating drum: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
     }
 }
 
@@ -89,7 +129,13 @@ pub async fn delete_drum(
         .execute(&state.db)
         .await
     {
-        Ok(_) => StatusCode::OK,
-        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        Ok(_) => {
+            info!("Drum deleted! ID: {}", &request.id);
+            StatusCode::OK
+        }
+        Err(e) => {
+            info!("Error deleting drum: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
     }
 }
