@@ -36,14 +36,18 @@ pub async fn search_brand(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> Json<Option<Brand>> {
-    match sqlx::query_as::<_, Brand>(r#"SELECT * FROM brands WHERE id = $1;"#)
+    match sqlx::query_as("SELECT * FROM brands WHERE id = $1;")
         .bind(id)
-        .fetch_one(&state.db)
+        .fetch_optional(&state.db)
         .await
     {
-        Ok(brand) => {
+        Ok(Some(brand)) => {
             info!("Brand found: {id}");
             Json(Some(brand))
+        }
+        Ok(None) => {
+            error!("No brand found.");
+            Json(None)
         }
         Err(e) => {
             error!("Error retrieving brand: {e}");
@@ -74,25 +78,57 @@ pub async fn create_brand(
 ) -> impl IntoResponse {
     let new_brand = Brand::new(&request.name);
 
-    match sqlx::query(
-        r#"
-        INSERT INTO brands (id, name)
-        VALUES ($1, $2)
-        "#,
-    )
-    .bind(new_brand.id)
-    .bind(new_brand.name)
-    .execute(&state.db)
-    .await
+    // Check duplicate
+    match sqlx::query("SELECT id FROM brands WHERE name = $1")
+        .bind(&new_brand.name)
+        .fetch_optional(&state.db)
+        .await
     {
-        Ok(_) => {
-            info!("Brand created! ID: {}", &new_brand.id);
-            StatusCode::CREATED
+        Ok(Some(_)) => {
+            error!("Brand '{}' already exists.", &new_brand.name);
+            StatusCode::CONFLICT
         }
-        Err(e) => {
-            info!("Error creating brand: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
+        Ok(None) => {
+            // Name is empty
+            if new_brand.name.is_empty() {
+                error!("Brand name cannot be empty.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Name too short
+            if new_brand.name.len() < 4 {
+                error!("Brand name is too short.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Name too long
+            if new_brand.name.len() > 20 {
+                error!("Brand name is too long.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            match sqlx::query(
+                r#"
+                INSERT INTO brands (id, name)
+                VALUES ($1, $2)
+                "#,
+            )
+            .bind(new_brand.id)
+            .bind(&new_brand.name)
+            .execute(&state.db)
+            .await
+            {
+                Ok(_) => {
+                    info!("Brand created! ID: {}", &new_brand.id);
+                    StatusCode::CREATED
+                }
+                Err(e) => {
+                    error!("Error creating brand: {}", e);
+                    StatusCode::INTERNAL_SERVER_ERROR
+                }
+            }
         }
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
     }
 }
 
@@ -103,18 +139,71 @@ pub async fn update_brand(
     let brand_id = request.id;
     let new_name = request.name;
 
-    match sqlx::query(r#"UPDATE brands SET name = $1 WHERE id = $2"#)
-        .bind(&new_name)
+    // ID not found
+    match sqlx::query(r#"SELECT id FROM brands WHERE id = $1"#)
         .bind(brand_id)
-        .execute(&state.db)
+        .fetch_optional(&state.db)
         .await
     {
-        Ok(_) => {
-            info!("Brand updated! ID: {}", &brand_id);
-            StatusCode::OK
+        Ok(Some(_)) => {
+            // Name is empty
+            if new_name.is_empty() {
+                error!("Brand name cannot be empty.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Name too short
+            if new_name.len() < 4 {
+                error!("Brand name is too short.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Name too long
+            if new_name.len() > 20 {
+                error!("Brand name is too long.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Check duplicate
+            match sqlx::query(r#"SELECT id FROM brands WHERE name = $1 AND id != $2"#)
+                .bind(&new_name)
+                .bind(brand_id)
+                .fetch_optional(&state.db)
+                .await
+            {
+                Ok(Some(_)) => {
+                    error!("Brand name already exists.");
+                    return StatusCode::BAD_REQUEST;
+                }
+                Ok(None) => {
+                    match sqlx::query(r#"UPDATE brands SET name = $1 WHERE id = $2"#)
+                        .bind(&new_name)
+                        .bind(brand_id)
+                        .execute(&state.db)
+                        .await
+                    {
+                        Ok(_) => {
+                            info!("Brand updated! ID: {}", &brand_id);
+                            StatusCode::OK
+                        }
+                        Err(e) => {
+                            error!("Error updating brand: {}", e);
+                            StatusCode::INTERNAL_SERVER_ERROR
+                        }
+                    }
+                }
+                Err(e) => {
+                    error!("Error checking for duplicate brand name: {}", e);
+                    StatusCode::INTERNAL_SERVER_ERROR
+                }
+            }
+        }
+        Ok(None) => {
+            error!("ID not found.");
+            StatusCode::NOT_FOUND
         }
         Err(e) => {
-            info!("Error updating brand: {}", e);
+            error!("Error fetching brand by ID: {}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         }
     }
@@ -124,17 +213,33 @@ pub async fn delete_brand(
     State(state): State<Arc<AppState>>,
     Json(request): Json<DeleteBrandRequest>,
 ) -> impl IntoResponse {
-    match sqlx::query(r#"DELETE FROM brands WHERE id = $1"#)
+    match sqlx::query(r#"SELECT id FROM brands WHERE id = $1"#)
         .bind(request.id)
-        .execute(&state.db)
+        .fetch_optional(&state.db)
         .await
     {
-        Ok(_) => {
-            info!("Brand deleted! ID: {}", &request.id);
-            StatusCode::OK
+        Ok(Some(_)) => {
+            match sqlx::query(r#"DELETE FROM brands WHERE id = $1"#)
+                .bind(request.id)
+                .execute(&state.db)
+                .await
+            {
+                Ok(_) => {
+                    info!("Brand deleted! ID: {}", &request.id);
+                    StatusCode::OK
+                }
+                Err(e) => {
+                    error!("Error deleting brand: {}", e);
+                    StatusCode::INTERNAL_SERVER_ERROR
+                }
+            }
+        }
+        Ok(None) => {
+            error!("ID not found.");
+            StatusCode::NOT_FOUND
         }
         Err(e) => {
-            info!("Error deleting brand: {}", e);
+            error!("Error deleting brand: {}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         }
     }
