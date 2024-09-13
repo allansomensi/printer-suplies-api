@@ -23,7 +23,9 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn toner_search_endpoint() {
-        let endpoint = format!("http://localhost:8000/api/v1/supplies/toner/wrong_id");
+        let endpoint = format!(
+            "http://localhost:8000/api/v1/supplies/toner/4340c4a2-eac5-4b51-9baa-40b498605a8c"
+        );
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -42,8 +44,7 @@ pub mod tests {
     #[tokio::test]
     async fn create_toner_endpoint() {
         let body = r#"{
-        "name": "TEST Toner",
-        "color": "wrong_color"
+        "name": ""
     }"#;
 
         let endpoint = "http://localhost:8000/api/v1/supplies/toners";
@@ -64,9 +65,9 @@ pub mod tests {
     #[tokio::test]
     async fn update_toner_endpoint() {
         let body = r#"{
-        "id": "wrong_id",
+        "id": "4340c4a2-eac5-4b51-9baa-40b398605a8c",
         "name": "TEST Toner",
-        "color": "black",
+        "color": "black"
     }"#;
 
         let endpoint = "http://localhost:8000/api/v1/supplies/toners";
@@ -87,7 +88,7 @@ pub mod tests {
     #[tokio::test]
     async fn delete_toner_endpoint() {
         let body = r#"{
-        "id": "wrong_id"
+        "id": "4340c4a2-eac5-4b51-9baa-40b498605a8c"
     }"#;
 
         let endpoint = "http://localhost:8000/api/v1/supplies/toners";
@@ -118,7 +119,9 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn drum_search_endpoint() {
-        let endpoint = format!("http://localhost:8000/api/v1/supplies/drum/wrong_id");
+        let endpoint = format!(
+            "http://localhost:8000/api/v1/supplies/drum/4340c4a2-eac5-4b51-9baa-40b498605a8c"
+        );
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -137,8 +140,8 @@ pub mod tests {
     #[tokio::test]
     async fn create_drum_endpoint() {
         let body = r#"{
-        "name--": "TEST Drum"
-    }"#;
+            "name": ""
+        }"#;
 
         let endpoint = "http://localhost:8000/api/v1/supplies/drums";
 
@@ -158,8 +161,8 @@ pub mod tests {
     #[tokio::test]
     async fn update_drum_endpoint() {
         let body = r#"{
-        "id": "wrong_id",
-        "name": "TEST Drum",
+        "id": "4340c4a2-eac5-4b51-9baa-40b398605a8c",
+        "name": "TEST Drum"
     }"#;
 
         let endpoint = "http://localhost:8000/api/v1/supplies/drums";
@@ -180,7 +183,7 @@ pub mod tests {
     #[tokio::test]
     async fn delete_drum_endpoint() {
         let body = r#"{
-        "id": "wrong_id"
+        "id": "4340c4a2-eac5-4b51-9baa-40b498605a8c"
     }"#;
 
         let endpoint = "http://localhost:8000/api/v1/supplies/drums";
@@ -211,7 +214,8 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn brand_search_endpoint() {
-        let endpoint = format!("http://localhost:8000/api/v1/brand/wrong_id");
+        let endpoint =
+            format!("http://localhost:8000/api/v1/brand/4340c4a2-eac5-4b51-9baa-40b498605a8c");
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -230,8 +234,8 @@ pub mod tests {
     #[tokio::test]
     async fn create_brand_endpoint() {
         let body = r#"{
-        "name--": "TEST Brand"
-    }"#;
+            "name": ""
+        }"#;
 
         let endpoint = "http://localhost:8000/api/v1/brands";
 
@@ -251,8 +255,8 @@ pub mod tests {
     #[tokio::test]
     async fn update_brand_endpoint() {
         let body = r#"{
-        "id": "wrong_id",
-        "name": "TEST brand",
+        "id": "4340c4a2-eac5-4b51-9baa-40b398605a8c",
+        "name": "TEST brand"
     }"#;
 
         let endpoint = "http://localhost:8000/api/v1/brands";
@@ -273,7 +277,7 @@ pub mod tests {
     #[tokio::test]
     async fn delete_brand_endpoint() {
         let body = r#"{
-        "id": "wrong_id"
+        "id": "4340c4a2-eac5-4b51-9baa-40b498605a8c"
     }"#;
 
         let endpoint = "http://localhost:8000/api/v1/brands";
@@ -304,7 +308,8 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn printer_search_endpoint() {
-        let endpoint = format!("http://localhost:8000/api/v1/printer/wrong_id");
+        let endpoint =
+            format!("http://localhost:8000/api/v1/printer/4340c4a2-eac5-4b51-9baa-40b498605a8c");
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -323,7 +328,7 @@ pub mod tests {
     #[tokio::test]
     async fn create_printer_endpoint() {
         let body = r#"{
-        "name": "TEST printer",
+        "name": "",
         "model": "TEST model",
         "brand": "wrong_id",
         "toner": "wrong_id",
@@ -348,12 +353,12 @@ pub mod tests {
     #[tokio::test]
     async fn update_printer_endpoint() {
         let body = r#"{
-            "id": "wrong_id",
+            "id": "4340c4a2-eac5-4b51-9baa-40b398605a8c",
             "name": "TEST printer",
             "model": "TEST model",
-            "brand": "wrong_id",
-            "toner": "wrong_id",
-            "drum": "wrong_id",
+            "brand": "4340c4a2-eac5-4b51-9baa-40b498605a8c",
+            "toner": "4340c4a2-eac5-4b51-9baa-40b498605a8c",
+            "drum": "4340c4a2-eac5-4b51-9baa-40b498605a8c"
         }"#;
 
         let endpoint = "http://localhost:8000/api/v1/printers";
@@ -374,7 +379,7 @@ pub mod tests {
     #[tokio::test]
     async fn delete_printer_endpoint() {
         let body = r#"{
-        "id": "wrong_id"
+        "id": "4340c4a2-eac5-4b51-9baa-40b498605a8c"
     }"#;
 
         let endpoint = "http://localhost:8000/api/v1/printers";
