@@ -36,14 +36,18 @@ pub async fn search_drum(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> Json<Option<Drum>> {
-    match sqlx::query_as::<_, Drum>(r#"SELECT * FROM drums WHERE id = $1;"#)
+    match sqlx::query_as("SELECT * FROM drums WHERE id = $1;")
         .bind(id)
-        .fetch_one(&state.db)
+        .fetch_optional(&state.db)
         .await
     {
-        Ok(drum) => {
+        Ok(Some(drum)) => {
             info!("Drum found: {id}");
             Json(Some(drum))
+        }
+        Ok(None) => {
+            error!("No drum found.");
+            Json(None)
         }
         Err(e) => {
             error!("Error retrieving drum: {e}");
@@ -74,25 +78,57 @@ pub async fn create_drum(
 ) -> impl IntoResponse {
     let new_drum = Drum::new(&request.name);
 
-    match sqlx::query(
-        r#"
-        INSERT INTO drums (id, name)
-        VALUES ($1, $2)
-        "#,
-    )
-    .bind(new_drum.id)
-    .bind(&new_drum.name)
-    .execute(&state.db)
-    .await
+    // Check duplicate
+    match sqlx::query("SELECT id FROM drums WHERE name = $1")
+        .bind(&new_drum.name)
+        .fetch_optional(&state.db)
+        .await
     {
-        Ok(_) => {
-            info!("Drum created! ID: {}", &new_drum.id);
-            StatusCode::CREATED
+        Ok(Some(_)) => {
+            error!("Drum '{}' already exists.", &new_drum.name);
+            StatusCode::CONFLICT
         }
-        Err(e) => {
-            info!("Error creating drum: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
+        Ok(None) => {
+            // Name is empty
+            if new_drum.name.is_empty() {
+                error!("Drum name cannot be empty.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Name too short
+            if new_drum.name.len() < 4 {
+                error!("Drum name is too short.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Name too long
+            if new_drum.name.len() > 20 {
+                error!("Drum name is too long.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            match sqlx::query(
+                r#"
+                INSERT INTO drums (id, name)
+                VALUES ($1, $2)
+                "#,
+            )
+            .bind(new_drum.id)
+            .bind(&new_drum.name)
+            .execute(&state.db)
+            .await
+            {
+                Ok(_) => {
+                    info!("Drum created! ID: {}", &new_drum.id);
+                    StatusCode::CREATED
+                }
+                Err(e) => {
+                    error!("Error creating drum: {}", e);
+                    StatusCode::INTERNAL_SERVER_ERROR
+                }
+            }
         }
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
     }
 }
 
@@ -103,18 +139,71 @@ pub async fn update_drum(
     let drum_id = request.id;
     let new_name = request.name;
 
-    match sqlx::query(r#"UPDATE drums SET name = $1 WHERE id = $2"#)
-        .bind(&new_name)
+    // ID not found
+    match sqlx::query(r#"SELECT id FROM drums WHERE id = $1"#)
         .bind(drum_id)
-        .execute(&state.db)
+        .fetch_optional(&state.db)
         .await
     {
-        Ok(_) => {
-            info!("Drum updated! ID: {}", &drum_id);
-            StatusCode::OK
+        Ok(Some(_)) => {
+            // Name is empty
+            if new_name.is_empty() {
+                error!("Drum name cannot be empty.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Name too short
+            if new_name.len() < 4 {
+                error!("Drum name is too short.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Name too long
+            if new_name.len() > 20 {
+                error!("Drum name is too long.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Check duplicate
+            match sqlx::query(r#"SELECT id FROM drums WHERE name = $1 AND id != $2"#)
+                .bind(&new_name)
+                .bind(drum_id)
+                .fetch_optional(&state.db)
+                .await
+            {
+                Ok(Some(_)) => {
+                    error!("Drum name already exists.");
+                    return StatusCode::BAD_REQUEST;
+                }
+                Ok(None) => {
+                    match sqlx::query(r#"UPDATE drums SET name = $1 WHERE id = $2"#)
+                        .bind(&new_name)
+                        .bind(drum_id)
+                        .execute(&state.db)
+                        .await
+                    {
+                        Ok(_) => {
+                            info!("Drum updated! ID: {}", &drum_id);
+                            StatusCode::OK
+                        }
+                        Err(e) => {
+                            error!("Error updating drum: {}", e);
+                            StatusCode::INTERNAL_SERVER_ERROR
+                        }
+                    }
+                }
+                Err(e) => {
+                    error!("Error checking for duplicate drum name: {}", e);
+                    StatusCode::INTERNAL_SERVER_ERROR
+                }
+            }
+        }
+        Ok(None) => {
+            error!("ID not found.");
+            StatusCode::NOT_FOUND
         }
         Err(e) => {
-            info!("Error updating drum: {}", e);
+            error!("Error fetching drum by ID: {}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         }
     }
@@ -124,17 +213,33 @@ pub async fn delete_drum(
     State(state): State<Arc<AppState>>,
     Json(request): Json<DeleteDrumRequest>,
 ) -> impl IntoResponse {
-    match sqlx::query(r#"DELETE FROM drums WHERE id = $1"#)
+    match sqlx::query(r#"SELECT id FROM drums WHERE id = $1"#)
         .bind(request.id)
-        .execute(&state.db)
+        .fetch_optional(&state.db)
         .await
     {
-        Ok(_) => {
-            info!("Drum deleted! ID: {}", &request.id);
-            StatusCode::OK
+        Ok(Some(_)) => {
+            match sqlx::query(r#"DELETE FROM drums WHERE id = $1"#)
+                .bind(request.id)
+                .execute(&state.db)
+                .await
+            {
+                Ok(_) => {
+                    info!("Drum deleted! ID: {}", &request.id);
+                    StatusCode::OK
+                }
+                Err(e) => {
+                    error!("Error deleting drum: {}", e);
+                    StatusCode::INTERNAL_SERVER_ERROR
+                }
+            }
+        }
+        Ok(None) => {
+            error!("ID not found.");
+            StatusCode::NOT_FOUND
         }
         Err(e) => {
-            info!("Error deleting drum: {}", e);
+            error!("Error deleting drum: {}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         }
     }
