@@ -1,6 +1,6 @@
 use crate::{
     handlers::{
-        brand, printer, status,
+        brand, movement, printer, status,
         supplies::{drum, toner},
     },
     models::database::AppState,
@@ -57,6 +57,12 @@ pub fn routes(state: Arc<AppState>) -> Router {
                         .put(brand::update_brand)
                         .delete(brand::delete_brand),
                 )
+                // Movements
+                .route(
+                    "/movements",
+                    get(movement::show_movements).post(movement::create_movement),
+                )
+                // Status
                 .route("/status", get(status::show_status)),
         )
         .with_state(state)

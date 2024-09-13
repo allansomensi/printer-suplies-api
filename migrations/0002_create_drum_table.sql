@@ -1,4 +1,5 @@
 CREATE TABLE drums (
     id UUID PRIMARY KEY,
-    name VARCHAR(50) NOT NULL
+    name VARCHAR(50) NOT NULL,
+    stock INTEGER DEFAULT 0
 );

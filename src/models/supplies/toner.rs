@@ -6,6 +6,7 @@ use uuid::Uuid;
 pub struct Toner {
     pub id: Uuid,
     pub name: String,
+    pub stock: i32,
 }
 
 impl Toner {
@@ -13,6 +14,7 @@ impl Toner {
         Toner {
             id: Uuid::new_v4(),
             name: String::from(name),
+            stock: 0,
         }
     }
 }
