@@ -35,14 +35,18 @@ pub async fn search_toner(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> Json<Option<Toner>> {
-    match sqlx::query_as::<_, Toner>("SELECT * FROM toners WHERE id = $1;")
+    match sqlx::query_as("SELECT * FROM toners WHERE id = $1;")
         .bind(id)
-        .fetch_one(&state.db)
+        .fetch_optional(&state.db)
         .await
     {
-        Ok(toner) => {
+        Ok(Some(toner)) => {
             info!("Toner found: {id}");
             Json(Some(toner))
+        }
+        Ok(None) => {
+            error!("No toner found.");
+            Json(None)
         }
         Err(e) => {
             error!("Error retrieving toner: {e}");
@@ -134,18 +138,71 @@ pub async fn update_toner(
     let toner_id = request.id;
     let new_name = request.name;
 
-    match sqlx::query(r#"UPDATE toners SET name = $1, color = $2 WHERE id = $3"#)
-        .bind(&new_name)
+    // ID not found
+    match sqlx::query(r#"SELECT id FROM toners WHERE id = $1"#)
         .bind(toner_id)
-        .execute(&state.db)
+        .fetch_optional(&state.db)
         .await
     {
-        Ok(_) => {
-            info!("Toner updated! ID: {}", &toner_id);
-            StatusCode::OK
+        Ok(Some(_)) => {
+            // Name is empty
+            if new_name.is_empty() {
+                error!("Toner name cannot be empty.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Name too short
+            if new_name.len() < 4 {
+                error!("Toner name is too short.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Name too long
+            if new_name.len() > 20 {
+                error!("Toner name is too long.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Check duplicate
+            match sqlx::query(r#"SELECT id FROM toners WHERE name = $1 AND id != $2"#)
+                .bind(&new_name)
+                .bind(toner_id)
+                .fetch_optional(&state.db)
+                .await
+            {
+                Ok(Some(_)) => {
+                    error!("Toner name already exists.");
+                    return StatusCode::BAD_REQUEST;
+                }
+                Ok(None) => {
+                    match sqlx::query(r#"UPDATE toners SET name = $1 WHERE id = $2"#)
+                        .bind(&new_name)
+                        .bind(toner_id)
+                        .execute(&state.db)
+                        .await
+                    {
+                        Ok(_) => {
+                            info!("Toner updated! ID: {}", &toner_id);
+                            StatusCode::OK
+                        }
+                        Err(e) => {
+                            error!("Error updating toner: {}", e);
+                            StatusCode::INTERNAL_SERVER_ERROR
+                        }
+                    }
+                }
+                Err(e) => {
+                    error!("Error checking for duplicate toner name: {}", e);
+                    StatusCode::INTERNAL_SERVER_ERROR
+                }
+            }
+        }
+        Ok(None) => {
+            error!("ID not found.");
+            StatusCode::NOT_FOUND
         }
         Err(e) => {
-            info!("Error updating toner: {}", e);
+            error!("Error fetching toner by ID: {}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         }
     }
@@ -155,17 +212,33 @@ pub async fn delete_toner(
     State(state): State<Arc<AppState>>,
     Json(request): Json<DeleteTonerRequest>,
 ) -> impl IntoResponse {
-    match sqlx::query(r#"DELETE FROM toners WHERE id = $1"#)
+    match sqlx::query(r#"SELECT id FROM toners WHERE id = $1"#)
         .bind(request.id)
-        .execute(&state.db)
+        .fetch_optional(&state.db)
         .await
     {
-        Ok(_) => {
-            info!("Toner deleted! ID: {}", &request.id);
-            StatusCode::OK
+        Ok(Some(_)) => {
+            match sqlx::query(r#"DELETE FROM toners WHERE id = $1"#)
+                .bind(request.id)
+                .execute(&state.db)
+                .await
+            {
+                Ok(_) => {
+                    info!("Toner deleted! ID: {}", &request.id);
+                    StatusCode::OK
+                }
+                Err(e) => {
+                    error!("Error deleting toner: {}", e);
+                    StatusCode::INTERNAL_SERVER_ERROR
+                }
+            }
+        }
+        Ok(None) => {
+            error!("ID not found.");
+            StatusCode::NOT_FOUND
         }
         Err(e) => {
-            info!("Error deleting toner: {}", e);
+            error!("Error deleting toner: {}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         }
     }
