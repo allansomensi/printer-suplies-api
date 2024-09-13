@@ -58,9 +58,15 @@ pub fn routes(state: Arc<AppState>) -> Router {
                         .delete(brand::delete_brand),
                 )
                 // Movements
+                .route("/movements", get(movement::show_all_movements))
+                .route("/movement-count", get(movement::count_movements))
                 .route(
-                    "/movements",
-                    get(movement::show_movements).post(movement::create_movement),
+                    "/movements/toner",
+                    get(movement::show_toner_movements).post(movement::create_toner_movement),
+                )
+                .route(
+                    "/movements/drum",
+                    get(movement::show_drum_movements).post(movement::create_drum_movement),
                 )
                 // Status
                 .route("/status", get(status::show_status)),

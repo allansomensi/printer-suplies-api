@@ -32,8 +32,13 @@ impl Movement {
 }
 
 #[derive(Deserialize, Serialize, FromRow)]
-pub struct CreateMovementRequest {
+pub struct CreateTonerMovementRequest {
     pub toner_id: Option<Uuid>,
+    pub quantity: i32,
+}
+
+#[derive(Deserialize, Serialize, FromRow)]
+pub struct CreateDrumMovementRequest {
     pub drum_id: Option<Uuid>,
     pub quantity: i32,
 }
