@@ -71,28 +71,41 @@ pub async fn create_toner(
     State(state): State<Arc<AppState>>,
     Json(request): Json<CreateTonerRequest>,
 ) -> impl IntoResponse {
-    let new_toner = Toner::new(&request.name, request.color);
+    let new_toner = Toner::new(&request.name);
 
-    match sqlx::query(
-        r#"
-        INSERT INTO toners (id, name, color)
-        VALUES ($1, $2, $3)
-        "#,
-    )
-    .bind(new_toner.id)
-    .bind(&new_toner.name)
-    .bind(&new_toner.color)
-    .execute(&state.db)
-    .await
+    // Check duplicate
+    match sqlx::query("SELECT id FROM toners WHERE name = $1")
+        .bind(&new_toner.name)
+        .fetch_optional(&state.db)
+        .await
     {
-        Ok(_) => {
-            info!("Toner created! ID: {}", &new_toner.id);
-            StatusCode::CREATED
+        Ok(Some(_)) => {
+            error!("Toner '{}' already exists.", &new_toner.name);
+            StatusCode::CONFLICT
         }
-        Err(e) => {
-            info!("Error creating toner: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
+        Ok(None) => {
+            match sqlx::query(
+                r#"
+                INSERT INTO toners (id, name)
+                VALUES ($1, $2)
+                "#,
+            )
+            .bind(new_toner.id)
+            .bind(&new_toner.name)
+            .execute(&state.db)
+            .await
+            {
+                Ok(_) => {
+                    info!("Toner created! ID: {}", &new_toner.id);
+                    StatusCode::CREATED
+                }
+                Err(e) => {
+                    error!("Error creating toner: {}", e);
+                    StatusCode::INTERNAL_SERVER_ERROR
+                }
+            }
         }
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
     }
 }
 
@@ -102,11 +115,9 @@ pub async fn update_toner(
 ) -> impl IntoResponse {
     let toner_id = request.id;
     let new_name = request.name;
-    let new_color = request.color;
 
     match sqlx::query(r#"UPDATE toners SET name = $1, color = $2 WHERE id = $3"#)
         .bind(&new_name)
-        .bind(&new_color)
         .bind(toner_id)
         .execute(&state.db)
         .await
