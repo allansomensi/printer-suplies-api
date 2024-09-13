@@ -199,7 +199,7 @@ pub async fn update_drum(
             }
         }
         Ok(None) => {
-            error!("ID not found.");
+            error!("Drum ID not found.");
             StatusCode::NOT_FOUND
         }
         Err(e) => {
@@ -235,7 +235,7 @@ pub async fn delete_drum(
             }
         }
         Ok(None) => {
-            error!("ID not found.");
+            error!("Drum ID not found.");
             StatusCode::NOT_FOUND
         }
         Err(e) => {

@@ -221,7 +221,7 @@ pub async fn update_printer(
             }
         }
         Ok(None) => {
-            error!("ID not found.");
+            error!("Printer ID not found.");
             StatusCode::NOT_FOUND
         }
         Err(e) => {
@@ -257,7 +257,7 @@ pub async fn delete_printer(
             }
         }
         Ok(None) => {
-            error!("ID not found.");
+            error!("Printer ID not found.");
             StatusCode::NOT_FOUND
         }
         Err(e) => {

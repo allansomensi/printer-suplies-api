@@ -199,7 +199,7 @@ pub async fn update_brand(
             }
         }
         Ok(None) => {
-            error!("ID not found.");
+            error!("Brand ID not found.");
             StatusCode::NOT_FOUND
         }
         Err(e) => {
@@ -235,7 +235,7 @@ pub async fn delete_brand(
             }
         }
         Ok(None) => {
-            error!("ID not found.");
+            error!("Brand ID not found.");
             StatusCode::NOT_FOUND
         }
         Err(e) => {

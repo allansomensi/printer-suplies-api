@@ -198,7 +198,7 @@ pub async fn update_toner(
             }
         }
         Ok(None) => {
-            error!("ID not found.");
+            error!("Toner ID not found.");
             StatusCode::NOT_FOUND
         }
         Err(e) => {
@@ -234,7 +234,7 @@ pub async fn delete_toner(
             }
         }
         Ok(None) => {
-            error!("ID not found.");
+            error!("Toner ID not found.");
             StatusCode::NOT_FOUND
         }
         Err(e) => {
