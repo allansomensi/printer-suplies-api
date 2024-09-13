@@ -84,6 +84,24 @@ pub async fn create_toner(
             StatusCode::CONFLICT
         }
         Ok(None) => {
+            // Name is empty
+            if new_toner.name.is_empty() {
+                error!("Toner name cannot be empty.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Name too short
+            if new_toner.name.len() < 4 {
+                error!("Toner name is too short.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Name too long
+            if new_toner.name.len() > 20 {
+                error!("Toner name is too long.");
+                return StatusCode::BAD_REQUEST;
+            }
+
             match sqlx::query(
                 r#"
                 INSERT INTO toners (id, name)
