@@ -36,14 +36,18 @@ pub async fn search_printer(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> Json<Option<Printer>> {
-    match sqlx::query_as::<_, Printer>(r#"SELECT * FROM printers WHERE id = $1;"#)
+    match sqlx::query_as("SELECT * FROM printers WHERE id = $1;")
         .bind(id)
-        .fetch_one(&state.db)
+        .fetch_optional(&state.db)
         .await
     {
-        Ok(printer) => {
+        Ok(Some(printer)) => {
             info!("Printer found: {id}");
             Json(Some(printer))
+        }
+        Ok(None) => {
+            error!("No printer found.");
+            Json(None)
         }
         Err(e) => {
             error!("Error retrieving printer: {e}");
@@ -80,29 +84,61 @@ pub async fn create_printer(
         Uuid::from_str(&request.drum).unwrap(),
     );
 
-    match sqlx::query(
-        r#"
-        INSERT INTO printers (id, name, model, brand, toner, drum)
-        VALUES ($1, $2, $3, $4, $5, $6)
-        "#,
-    )
-    .bind(new_printer.id)
-    .bind(new_printer.name)
-    .bind(new_printer.model)
-    .bind(new_printer.brand)
-    .bind(new_printer.toner)
-    .bind(new_printer.drum)
-    .execute(&state.db)
-    .await
+    // Check duplicate
+    match sqlx::query("SELECT id FROM printers WHERE name = $1")
+        .bind(&new_printer.name)
+        .fetch_optional(&state.db)
+        .await
     {
-        Ok(_) => {
-            info!("Printer created! ID: {}", &new_printer.id);
-            StatusCode::CREATED
+        Ok(Some(_)) => {
+            error!("Printer '{}' already exists.", &new_printer.name);
+            StatusCode::CONFLICT
         }
-        Err(e) => {
-            info!("Error creating printer: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
+        Ok(None) => {
+            // Name is empty
+            if new_printer.name.is_empty() {
+                error!("Printer name cannot be empty.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Name too short
+            if new_printer.name.len() < 4 {
+                error!("Printer name is too short.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Name too long
+            if new_printer.name.len() > 20 {
+                error!("Printer name is too long.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            match sqlx::query(
+                r#"
+                INSERT INTO printers (id, name, model, brand, toner, drum)
+                VALUES ($1, $2, $3, $4, $5, $6)
+                "#,
+            )
+            .bind(new_printer.id)
+            .bind(new_printer.name)
+            .bind(new_printer.model)
+            .bind(new_printer.brand)
+            .bind(new_printer.toner)
+            .bind(new_printer.drum)
+            .execute(&state.db)
+            .await
+            {
+                Ok(_) => {
+                    info!("Printer created! ID: {}", &new_printer.id);
+                    StatusCode::CREATED
+                }
+                Err(e) => {
+                    error!("Error creating printer: {}", e);
+                    StatusCode::INTERNAL_SERVER_ERROR
+                }
+            }
         }
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
     }
 }
 
@@ -117,26 +153,79 @@ pub async fn update_printer(
     let new_toner = request.toner;
     let new_drum = request.drum;
 
-    match sqlx::query(
-        r#"UPDATE printers 
-    SET name = $1, model = $2, brand = $3, toner = $4, drum = $5 
-    WHERE id = $6"#,
-    )
-    .bind(&new_name)
-    .bind(&new_model)
-    .bind(&new_brand)
-    .bind(&new_toner)
-    .bind(&new_drum)
-    .bind(printer_id)
-    .execute(&state.db)
-    .await
+    // ID not found
+    match sqlx::query(r#"SELECT id FROM printers WHERE id = $1"#)
+        .bind(printer_id)
+        .fetch_optional(&state.db)
+        .await
     {
-        Ok(_) => {
-            info!("Printer updated! ID: {}", &printer_id);
-            StatusCode::OK
+        Ok(Some(_)) => {
+            // Name is empty
+            if new_name.is_empty() {
+                error!("Printer name cannot be empty.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Name too short
+            if new_name.len() < 4 {
+                error!("Printer name is too short.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Name too long
+            if new_name.len() > 20 {
+                error!("Printer name is too long.");
+                return StatusCode::BAD_REQUEST;
+            }
+
+            // Check duplicate
+            match sqlx::query(r#"SELECT id FROM printers WHERE name = $1 AND id != $2"#)
+                .bind(&new_name)
+                .bind(printer_id)
+                .fetch_optional(&state.db)
+                .await
+            {
+                Ok(Some(_)) => {
+                    error!("Printer name already exists.");
+                    return StatusCode::BAD_REQUEST;
+                }
+                Ok(None) => {
+                    match sqlx::query(
+                        r#"UPDATE printers 
+                    SET name = $1, model = $2, brand = $3, toner = $4, drum = $5 
+                    WHERE id = $6"#,
+                    )
+                    .bind(&new_name)
+                    .bind(&new_model)
+                    .bind(&new_brand)
+                    .bind(&new_toner)
+                    .bind(&new_drum)
+                    .bind(printer_id)
+                    .execute(&state.db)
+                    .await
+                    {
+                        Ok(_) => {
+                            info!("Printer updated! ID: {}", &printer_id);
+                            StatusCode::OK
+                        }
+                        Err(e) => {
+                            error!("Error updating printer: {}", e);
+                            StatusCode::INTERNAL_SERVER_ERROR
+                        }
+                    }
+                }
+                Err(e) => {
+                    error!("Error checking for duplicate printer name: {}", e);
+                    StatusCode::INTERNAL_SERVER_ERROR
+                }
+            }
+        }
+        Ok(None) => {
+            error!("ID not found.");
+            StatusCode::NOT_FOUND
         }
         Err(e) => {
-            info!("Error updating printer: {}", e);
+            error!("Error fetching printer by ID: {}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         }
     }
@@ -146,17 +235,33 @@ pub async fn delete_printer(
     State(state): State<Arc<AppState>>,
     Json(request): Json<DeletePrinterRequest>,
 ) -> impl IntoResponse {
-    match sqlx::query(r#"DELETE FROM printers WHERE id = $1"#)
+    match sqlx::query(r#"SELECT id FROM printers WHERE id = $1"#)
         .bind(request.id)
-        .execute(&state.db)
+        .fetch_optional(&state.db)
         .await
     {
-        Ok(_) => {
-            info!("Printer deleted! ID: {}", &request.id);
-            StatusCode::OK
+        Ok(Some(_)) => {
+            match sqlx::query(r#"DELETE FROM printers WHERE id = $1"#)
+                .bind(request.id)
+                .execute(&state.db)
+                .await
+            {
+                Ok(_) => {
+                    info!("Printer deleted! ID: {}", &request.id);
+                    StatusCode::OK
+                }
+                Err(e) => {
+                    error!("Error deleting printer: {}", e);
+                    StatusCode::INTERNAL_SERVER_ERROR
+                }
+            }
+        }
+        Ok(None) => {
+            error!("ID not found.");
+            StatusCode::NOT_FOUND
         }
         Err(e) => {
-            info!("Error deleting printer: {}", e);
+            error!("Error deleting printer: {}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         }
     }
