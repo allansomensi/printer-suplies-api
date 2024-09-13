@@ -35,23 +35,23 @@ pub async fn count_printers(State(state): State<Arc<AppState>>) -> Json<i32> {
 pub async fn search_printer(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-) -> Json<Option<Printer>> {
-    match sqlx::query_as("SELECT * FROM printers WHERE id = $1;")
+) -> impl IntoResponse {
+    match sqlx::query_as::<_, Printer>("SELECT * FROM printers WHERE id = $1")
         .bind(id)
         .fetch_optional(&state.db)
         .await
     {
         Ok(Some(printer)) => {
             info!("Printer found: {id}");
-            Json(Some(printer))
+            (StatusCode::OK, Json(Some(printer)))
         }
         Ok(None) => {
             error!("No printer found.");
-            Json(None)
+            (StatusCode::NOT_FOUND, Json(None))
         }
         Err(e) => {
             error!("Error retrieving printer: {e}");
-            Json(None)
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(None))
         }
     }
 }

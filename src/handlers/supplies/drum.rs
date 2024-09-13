@@ -35,23 +35,23 @@ pub async fn count_drums(State(state): State<Arc<AppState>>) -> Json<i32> {
 pub async fn search_drum(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-) -> Json<Option<Drum>> {
-    match sqlx::query_as("SELECT * FROM drums WHERE id = $1;")
+) -> impl IntoResponse {
+    match sqlx::query_as::<_, Drum>("SELECT * FROM drums WHERE id = $1")
         .bind(id)
         .fetch_optional(&state.db)
         .await
     {
         Ok(Some(drum)) => {
             info!("Drum found: {id}");
-            Json(Some(drum))
+            (StatusCode::OK, Json(Some(drum)))
         }
         Ok(None) => {
             error!("No drum found.");
-            Json(None)
+            (StatusCode::NOT_FOUND, Json(None))
         }
         Err(e) => {
             error!("Error retrieving drum: {e}");
-            Json(None)
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(None))
         }
     }
 }

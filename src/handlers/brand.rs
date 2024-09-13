@@ -35,23 +35,23 @@ pub async fn count_brands(State(state): State<Arc<AppState>>) -> Json<i32> {
 pub async fn search_brand(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-) -> Json<Option<Brand>> {
-    match sqlx::query_as("SELECT * FROM brands WHERE id = $1;")
+) -> impl IntoResponse {
+    match sqlx::query_as::<_, Brand>("SELECT * FROM brands WHERE id = $1")
         .bind(id)
         .fetch_optional(&state.db)
         .await
     {
         Ok(Some(brand)) => {
             info!("Brand found: {id}");
-            Json(Some(brand))
+            (StatusCode::OK, Json(Some(brand)))
         }
         Ok(None) => {
             error!("No brand found.");
-            Json(None)
+            (StatusCode::NOT_FOUND, Json(None))
         }
         Err(e) => {
             error!("Error retrieving brand: {e}");
-            Json(None)
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(None))
         }
     }
 }

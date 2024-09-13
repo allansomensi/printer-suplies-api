@@ -34,23 +34,23 @@ pub async fn count_toners(State(state): State<Arc<AppState>>) -> Json<i32> {
 pub async fn search_toner(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
-) -> Json<Option<Toner>> {
-    match sqlx::query_as("SELECT * FROM toners WHERE id = $1;")
+) -> impl IntoResponse {
+    match sqlx::query_as::<_, Toner>("SELECT * FROM toners WHERE id = $1")
         .bind(id)
         .fetch_optional(&state.db)
         .await
     {
         Ok(Some(toner)) => {
             info!("Toner found: {id}");
-            Json(Some(toner))
+            (StatusCode::OK, Json(Some(toner)))
         }
         Ok(None) => {
             error!("No toner found.");
-            Json(None)
+            (StatusCode::NOT_FOUND, Json(None))
         }
         Err(e) => {
             error!("Error retrieving toner: {e}");
-            Json(None)
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(None))
         }
     }
 }
