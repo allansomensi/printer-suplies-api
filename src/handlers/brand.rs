@@ -17,7 +17,7 @@ use crate::models::{
 
 pub async fn count_brands(State(state): State<Arc<AppState>>) -> Json<i32> {
     let brand_count: Result<(i32,), sqlx::Error> =
-        sqlx::query_as(r#"SELECT COUNT(*)::int FROM brands"#)
+        sqlx::query_as(r#"SELECT COUNT(*)::int FROM brands;"#)
             .fetch_one(&state.db)
             .await;
 
@@ -37,7 +37,7 @@ pub async fn search_brand(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> impl IntoResponse {
-    match sqlx::query_as::<_, Brand>("SELECT * FROM brands WHERE id = $1")
+    match sqlx::query_as::<_, Brand>(r#"SELECT * FROM brands WHERE id = $1;"#)
         .bind(id)
         .fetch_optional(&state.db)
         .await
@@ -58,7 +58,7 @@ pub async fn search_brand(
 }
 
 pub async fn show_brands(State(state): State<Arc<AppState>>) -> Json<Vec<Brand>> {
-    match sqlx::query_as(r#"SELECT * FROM brands"#)
+    match sqlx::query_as(r#"SELECT * FROM brands;"#)
         .fetch_all(&state.db)
         .await
     {
@@ -80,7 +80,7 @@ pub async fn create_brand(
     let new_brand = Brand::new(&request.name);
 
     // Check duplicate
-    match sqlx::query("SELECT id FROM brands WHERE name = $1")
+    match sqlx::query(r#"SELECT id FROM brands WHERE name = $1;"#)
         .bind(&new_brand.name)
         .fetch_optional(&state.db)
         .await
@@ -141,7 +141,7 @@ pub async fn update_brand(
     let new_name = request.name;
 
     // ID not found
-    match sqlx::query(r#"SELECT id FROM brands WHERE id = $1"#)
+    match sqlx::query(r#"SELECT id FROM brands WHERE id = $1;"#)
         .bind(brand_id)
         .fetch_optional(&state.db)
         .await
@@ -166,7 +166,7 @@ pub async fn update_brand(
             }
 
             // Check duplicate
-            match sqlx::query(r#"SELECT id FROM brands WHERE name = $1 AND id != $2"#)
+            match sqlx::query(r#"SELECT id FROM brands WHERE name = $1 AND id != $2;"#)
                 .bind(&new_name)
                 .bind(brand_id)
                 .fetch_optional(&state.db)
@@ -174,10 +174,10 @@ pub async fn update_brand(
             {
                 Ok(Some(_)) => {
                     error!("Brand name already exists.");
-                    return StatusCode::BAD_REQUEST;
+                    StatusCode::BAD_REQUEST
                 }
                 Ok(None) => {
-                    match sqlx::query(r#"UPDATE brands SET name = $1 WHERE id = $2"#)
+                    match sqlx::query(r#"UPDATE brands SET name = $1 WHERE id = $2;"#)
                         .bind(&new_name)
                         .bind(brand_id)
                         .execute(&state.db)
@@ -214,13 +214,13 @@ pub async fn delete_brand(
     State(state): State<Arc<AppState>>,
     Json(request): Json<DeleteRequest>,
 ) -> impl IntoResponse {
-    match sqlx::query(r#"SELECT id FROM brands WHERE id = $1"#)
+    match sqlx::query(r#"SELECT id FROM brands WHERE id = $1;"#)
         .bind(request.id)
         .fetch_optional(&state.db)
         .await
     {
         Ok(Some(_)) => {
-            match sqlx::query(r#"DELETE FROM brands WHERE id = $1"#)
+            match sqlx::query(r#"DELETE FROM brands WHERE id = $1;"#)
                 .bind(request.id)
                 .execute(&state.db)
                 .await

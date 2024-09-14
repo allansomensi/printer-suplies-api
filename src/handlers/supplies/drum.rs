@@ -17,7 +17,7 @@ use crate::models::{
 
 pub async fn count_drums(State(state): State<Arc<AppState>>) -> Json<i32> {
     let drum_count: Result<(i32,), sqlx::Error> =
-        sqlx::query_as(r#"SELECT COUNT(*)::int FROM drums"#)
+        sqlx::query_as(r#"SELECT COUNT(*)::int FROM drums;"#)
             .fetch_one(&state.db)
             .await;
 
@@ -37,7 +37,7 @@ pub async fn search_drum(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> impl IntoResponse {
-    match sqlx::query_as::<_, Drum>("SELECT * FROM drums WHERE id = $1")
+    match sqlx::query_as::<_, Drum>(r#"SELECT * FROM drums WHERE id = $1;"#)
         .bind(id)
         .fetch_optional(&state.db)
         .await
@@ -58,7 +58,7 @@ pub async fn search_drum(
 }
 
 pub async fn show_drums(State(state): State<Arc<AppState>>) -> Json<Vec<Drum>> {
-    match sqlx::query_as(r#"SELECT * FROM drums"#)
+    match sqlx::query_as(r#"SELECT * FROM drums;"#)
         .fetch_all(&state.db)
         .await
     {
@@ -80,7 +80,7 @@ pub async fn create_drum(
     let new_drum = Drum::new(&request.name);
 
     // Check duplicate
-    match sqlx::query("SELECT id FROM drums WHERE name = $1")
+    match sqlx::query(r#"SELECT id FROM drums WHERE name = $1;"#)
         .bind(&new_drum.name)
         .fetch_optional(&state.db)
         .await
@@ -141,7 +141,7 @@ pub async fn update_drum(
     let new_name = request.name;
 
     // ID not found
-    match sqlx::query(r#"SELECT id FROM drums WHERE id = $1"#)
+    match sqlx::query(r#"SELECT id FROM drums WHERE id = $1;"#)
         .bind(drum_id)
         .fetch_optional(&state.db)
         .await
@@ -166,7 +166,7 @@ pub async fn update_drum(
             }
 
             // Check duplicate
-            match sqlx::query(r#"SELECT id FROM drums WHERE name = $1 AND id != $2"#)
+            match sqlx::query(r#"SELECT id FROM drums WHERE name = $1 AND id != $2;"#)
                 .bind(&new_name)
                 .bind(drum_id)
                 .fetch_optional(&state.db)
@@ -174,10 +174,10 @@ pub async fn update_drum(
             {
                 Ok(Some(_)) => {
                     error!("Drum name already exists.");
-                    return StatusCode::BAD_REQUEST;
+                    StatusCode::BAD_REQUEST
                 }
                 Ok(None) => {
-                    match sqlx::query(r#"UPDATE drums SET name = $1 WHERE id = $2"#)
+                    match sqlx::query(r#"UPDATE drums SET name = $1 WHERE id = $2;"#)
                         .bind(&new_name)
                         .bind(drum_id)
                         .execute(&state.db)
@@ -214,13 +214,13 @@ pub async fn delete_drum(
     State(state): State<Arc<AppState>>,
     Json(request): Json<DeleteRequest>,
 ) -> impl IntoResponse {
-    match sqlx::query(r#"SELECT id FROM drums WHERE id = $1"#)
+    match sqlx::query(r#"SELECT id FROM drums WHERE id = $1;"#)
         .bind(request.id)
         .fetch_optional(&state.db)
         .await
     {
         Ok(Some(_)) => {
-            match sqlx::query(r#"DELETE FROM drums WHERE id = $1"#)
+            match sqlx::query(r#"DELETE FROM drums WHERE id = $1;"#)
                 .bind(request.id)
                 .execute(&state.db)
                 .await

@@ -75,7 +75,7 @@ pub async fn search_movement(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> impl IntoResponse {
-    match sqlx::query_as::<_, Movement>("SELECT * FROM movements WHERE id = $1")
+    match sqlx::query_as::<_, Movement>(r#"SELECT * FROM movements WHERE id = $1"#)
         .bind(id)
         .fetch_optional(&state.db)
         .await
@@ -150,7 +150,7 @@ pub async fn create_toner_movement(
     match request.toner_id {
         Some(toner_id) => {
             let printer_id: Uuid = match sqlx::query(r#"SELECT id FROM printers WHERE toner = $1;"#)
-                .bind(&toner_id)
+                .bind(toner_id)
                 .fetch_one(&state.db)
                 .await
                 .unwrap()
@@ -174,7 +174,7 @@ pub async fn create_toner_movement(
             match sqlx::query(
                 r#"
                 INSERT INTO movements (id, printer_id, toner_id, drum_id, quantity, created_at)
-                VALUES ($1, $2, $3, $4, $5, $6)
+                VALUES ($1, $2, $3, $4, $5, $6);
                 "#,
             )
             .bind(Uuid::new_v4())
@@ -187,7 +187,7 @@ pub async fn create_toner_movement(
             .await
             {
                 Ok(_) => {
-                    sqlx::query("UPDATE toners SET stock = stock + $1 WHERE id = $2")
+                    sqlx::query(r#"UPDATE toners SET stock = stock + $1 WHERE id = $2;"#)
                         .bind(request.quantity)
                         .bind(toner_id)
                         .execute(&state.db)
@@ -216,7 +216,7 @@ pub async fn create_drum_movement(
     match request.drum_id {
         Some(drum_id) => {
             let printer_id: Uuid = match sqlx::query(r#"SELECT id FROM printers WHERE drum = $1;"#)
-                .bind(&drum_id)
+                .bind(drum_id)
                 .fetch_one(&state.db)
                 .await
                 .unwrap()
@@ -240,7 +240,7 @@ pub async fn create_drum_movement(
             match sqlx::query(
                 r#"
                 INSERT INTO movements (id, printer_id, toner_id, drum_id, quantity, created_at)
-                VALUES ($1, $2, $3, $4, $5, $6)
+                VALUES ($1, $2, $3, $4, $5, $6);
                 "#,
             )
             .bind(Uuid::new_v4())
@@ -253,7 +253,7 @@ pub async fn create_drum_movement(
             .await
             {
                 Ok(_) => {
-                    sqlx::query("UPDATE drums SET stock = stock + $1 WHERE id = $2")
+                    sqlx::query(r#"UPDATE drums SET stock = stock + $1 WHERE id = $2;"#)
                         .bind(request.quantity)
                         .bind(drum_id)
                         .execute(&state.db)
@@ -279,13 +279,13 @@ pub async fn delete_movement(
     State(state): State<Arc<AppState>>,
     Json(request): Json<DeleteRequest>,
 ) -> impl IntoResponse {
-    match sqlx::query(r#"SELECT id FROM movements WHERE id = $1"#)
+    match sqlx::query(r#"SELECT id FROM movements WHERE id = $1;"#)
         .bind(request.id)
         .fetch_optional(&state.db)
         .await
     {
         Ok(Some(_)) => {
-            match sqlx::query(r#"DELETE FROM movements WHERE id = $1"#)
+            match sqlx::query(r#"DELETE FROM movements WHERE id = $1;"#)
                 .bind(request.id)
                 .execute(&state.db)
                 .await

@@ -17,7 +17,7 @@ use crate::models::{
 
 pub async fn count_printers(State(state): State<Arc<AppState>>) -> Json<i32> {
     let printer_count: Result<(i32,), sqlx::Error> =
-        sqlx::query_as(r#"SELECT COUNT(*)::int FROM printers"#)
+        sqlx::query_as(r#"SELECT COUNT(*)::int FROM printers;"#)
             .fetch_one(&state.db)
             .await;
 
@@ -37,7 +37,7 @@ pub async fn search_printer(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> impl IntoResponse {
-    match sqlx::query_as::<_, Printer>("SELECT * FROM printers WHERE id = $1")
+    match sqlx::query_as::<_, Printer>(r#"SELECT * FROM printers WHERE id = $1;"#)
         .bind(id)
         .fetch_optional(&state.db)
         .await
@@ -58,7 +58,7 @@ pub async fn search_printer(
 }
 
 pub async fn show_printers(State(state): State<Arc<AppState>>) -> Json<Vec<Printer>> {
-    match sqlx::query_as(r#"SELECT * FROM printers"#)
+    match sqlx::query_as(r#"SELECT * FROM printers;"#)
         .fetch_all(&state.db)
         .await
     {
@@ -86,7 +86,7 @@ pub async fn create_printer(
     );
 
     // Check duplicate
-    match sqlx::query("SELECT id FROM printers WHERE name = $1")
+    match sqlx::query(r#"SELECT id FROM printers WHERE name = $1;"#)
         .bind(&new_printer.name)
         .fetch_optional(&state.db)
         .await
@@ -117,7 +117,7 @@ pub async fn create_printer(
             match sqlx::query(
                 r#"
                 INSERT INTO printers (id, name, model, brand, toner, drum)
-                VALUES ($1, $2, $3, $4, $5, $6)
+                VALUES ($1, $2, $3, $4, $5, $6);
                 "#,
             )
             .bind(new_printer.id)
@@ -155,7 +155,7 @@ pub async fn update_printer(
     let new_drum = Uuid::from_str(request.drum.as_str()).unwrap();
 
     // ID not found
-    match sqlx::query(r#"SELECT id FROM printers WHERE id = $1"#)
+    match sqlx::query(r#"SELECT id FROM printers WHERE id = $1;"#)
         .bind(printer_id)
         .fetch_optional(&state.db)
         .await
@@ -180,7 +180,7 @@ pub async fn update_printer(
             }
 
             // Check duplicate
-            match sqlx::query(r#"SELECT id FROM printers WHERE name = $1 AND id != $2"#)
+            match sqlx::query(r#"SELECT id FROM printers WHERE name = $1 AND id != $2;"#)
                 .bind(&new_name)
                 .bind(printer_id)
                 .fetch_optional(&state.db)
@@ -188,19 +188,19 @@ pub async fn update_printer(
             {
                 Ok(Some(_)) => {
                     error!("Printer name already exists.");
-                    return StatusCode::BAD_REQUEST;
+                    StatusCode::BAD_REQUEST
                 }
                 Ok(None) => {
                     match sqlx::query(
                         r#"UPDATE printers 
                     SET name = $1, model = $2, brand = $3, toner = $4, drum = $5 
-                    WHERE id = $6"#,
+                    WHERE id = $6;"#,
                     )
                     .bind(&new_name)
                     .bind(&new_model)
-                    .bind(&new_brand)
-                    .bind(&new_toner)
-                    .bind(&new_drum)
+                    .bind(new_brand)
+                    .bind(new_toner)
+                    .bind(new_drum)
                     .bind(printer_id)
                     .execute(&state.db)
                     .await
@@ -236,13 +236,13 @@ pub async fn delete_printer(
     State(state): State<Arc<AppState>>,
     Json(request): Json<DeleteRequest>,
 ) -> impl IntoResponse {
-    match sqlx::query(r#"SELECT id FROM printers WHERE id = $1"#)
+    match sqlx::query(r#"SELECT id FROM printers WHERE id = $1;"#)
         .bind(request.id)
         .fetch_optional(&state.db)
         .await
     {
         Ok(Some(_)) => {
-            match sqlx::query(r#"DELETE FROM printers WHERE id = $1"#)
+            match sqlx::query(r#"DELETE FROM printers WHERE id = $1;"#)
                 .bind(request.id)
                 .execute(&state.db)
                 .await

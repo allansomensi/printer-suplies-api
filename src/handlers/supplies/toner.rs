@@ -17,7 +17,7 @@ use crate::models::{
 
 pub async fn count_toners(State(state): State<Arc<AppState>>) -> Json<i32> {
     let toner_count: Result<(i32,), sqlx::Error> =
-        sqlx::query_as(r#"SELECT COUNT(*)::int FROM toners"#)
+        sqlx::query_as(r#"SELECT COUNT(*)::int FROM toners;"#)
             .fetch_one(&state.db)
             .await;
     match toner_count {
@@ -36,7 +36,7 @@ pub async fn search_toner(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> impl IntoResponse {
-    match sqlx::query_as::<_, Toner>("SELECT * FROM toners WHERE id = $1")
+    match sqlx::query_as::<_, Toner>(r#"SELECT * FROM toners WHERE id = $1;"#)
         .bind(id)
         .fetch_optional(&state.db)
         .await
@@ -57,7 +57,7 @@ pub async fn search_toner(
 }
 
 pub async fn show_toners(State(state): State<Arc<AppState>>) -> Json<Vec<Toner>> {
-    match sqlx::query_as(r#"SELECT * FROM toners"#)
+    match sqlx::query_as(r#"SELECT * FROM toners;"#)
         .fetch_all(&state.db)
         .await
     {
@@ -79,7 +79,7 @@ pub async fn create_toner(
     let new_toner = Toner::new(&request.name);
 
     // Check duplicate
-    match sqlx::query("SELECT id FROM toners WHERE name = $1")
+    match sqlx::query(r#"SELECT id FROM toners WHERE name = $1;"#)
         .bind(&new_toner.name)
         .fetch_optional(&state.db)
         .await
@@ -107,16 +107,11 @@ pub async fn create_toner(
                 return StatusCode::BAD_REQUEST;
             }
 
-            match sqlx::query(
-                r#"
-                INSERT INTO toners (id, name)
-                VALUES ($1, $2)
-                "#,
-            )
-            .bind(new_toner.id)
-            .bind(&new_toner.name)
-            .execute(&state.db)
-            .await
+            match sqlx::query(r#"INSERT INTO toners (id, name) VALUES ($1, $2);"#)
+                .bind(new_toner.id)
+                .bind(&new_toner.name)
+                .execute(&state.db)
+                .await
             {
                 Ok(_) => {
                     info!("Toner created! ID: {}", &new_toner.id);
@@ -140,7 +135,7 @@ pub async fn update_toner(
     let new_name = request.name;
 
     // ID not found
-    match sqlx::query(r#"SELECT id FROM toners WHERE id = $1"#)
+    match sqlx::query(r#"SELECT id FROM toners WHERE id = $1;"#)
         .bind(toner_id)
         .fetch_optional(&state.db)
         .await
@@ -165,7 +160,7 @@ pub async fn update_toner(
             }
 
             // Check duplicate
-            match sqlx::query(r#"SELECT id FROM toners WHERE name = $1 AND id != $2"#)
+            match sqlx::query(r#"SELECT id FROM toners WHERE name = $1 AND id != $2;"#)
                 .bind(&new_name)
                 .bind(toner_id)
                 .fetch_optional(&state.db)
@@ -173,10 +168,10 @@ pub async fn update_toner(
             {
                 Ok(Some(_)) => {
                     error!("Toner name already exists.");
-                    return StatusCode::BAD_REQUEST;
+                    StatusCode::BAD_REQUEST
                 }
                 Ok(None) => {
-                    match sqlx::query(r#"UPDATE toners SET name = $1 WHERE id = $2"#)
+                    match sqlx::query(r#"UPDATE toners SET name = $1 WHERE id = $2;"#)
                         .bind(&new_name)
                         .bind(toner_id)
                         .execute(&state.db)
@@ -213,13 +208,13 @@ pub async fn delete_toner(
     State(state): State<Arc<AppState>>,
     Json(request): Json<DeleteRequest>,
 ) -> impl IntoResponse {
-    match sqlx::query(r#"SELECT id FROM toners WHERE id = $1"#)
+    match sqlx::query(r#"SELECT id FROM toners WHERE id = $1;"#)
         .bind(request.id)
         .fetch_optional(&state.db)
         .await
     {
         Ok(Some(_)) => {
-            match sqlx::query(r#"DELETE FROM toners WHERE id = $1"#)
+            match sqlx::query(r#"DELETE FROM toners WHERE id = $1;"#)
                 .bind(request.id)
                 .execute(&state.db)
                 .await
