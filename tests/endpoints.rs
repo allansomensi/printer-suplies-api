@@ -1,9 +1,15 @@
 pub mod tests {
     use reqwest::StatusCode;
+    use std::env::var;
+
+    pub fn setup() {
+        dotenvy::dotenv().ok();
+    }
 
     #[tokio::test]
     pub async fn status_endpoint() {
-        let endpoint = format!("http://localhost:8000/api/v1/status");
+        setup();
+        let endpoint = format!("http://{}/api/v1/status", var("HOST").unwrap());
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -14,7 +20,11 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn toner_count_endpoint() {
-        let endpoint = format!("http://localhost:8000/api/v1/supplies/toner-count");
+        setup();
+        let endpoint = format!(
+            "http://{}/api/v1/supplies/toner-count",
+            var("HOST").unwrap()
+        );
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -23,8 +33,10 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn toner_search_endpoint() {
+        setup();
         let endpoint = format!(
-            "http://localhost:8000/api/v1/supplies/toner/4340c4a2-eac5-4b51-9baa-40b498605a8c"
+            "http://{}/api/v1/supplies/toner/4340c4a2-eac5-4b51-9baa-40b498605a8c",
+            var("HOST").unwrap()
         );
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
@@ -34,7 +46,8 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn show_toners_endpoint() {
-        let endpoint = format!("http://localhost:8000/api/v1/supplies/toners");
+        setup();
+        let endpoint = format!("http://{}/api/v1/supplies/toners", var("HOST").unwrap());
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -43,11 +56,12 @@ pub mod tests {
 
     #[tokio::test]
     async fn create_toner_endpoint() {
+        setup();
         let body = r#"{
         "name": ""
     }"#;
 
-        let endpoint = "http://localhost:8000/api/v1/supplies/toners";
+        let endpoint = format!("http://{}/api/v1/supplies/toners", var("HOST").unwrap());
 
         let client = reqwest::Client::new();
 
@@ -64,13 +78,14 @@ pub mod tests {
 
     #[tokio::test]
     async fn update_toner_endpoint() {
+        setup();
         let body = r#"{
         "id": "4340c4a2-eac5-4b51-9baa-40b398605a8c",
         "name": "TEST Toner",
         "color": "black"
     }"#;
 
-        let endpoint = "http://localhost:8000/api/v1/supplies/toners";
+        let endpoint = format!("http://{}/api/v1/supplies/toners", var("HOST").unwrap());
 
         let client = reqwest::Client::new();
 
@@ -87,11 +102,12 @@ pub mod tests {
 
     #[tokio::test]
     async fn delete_toner_endpoint() {
+        setup();
         let body = r#"{
         "id": "4340c4a2-eac5-4b51-9baa-40b498605a8c"
     }"#;
 
-        let endpoint = "http://localhost:8000/api/v1/supplies/toners";
+        let endpoint = format!("http://{}/api/v1/supplies/toners", var("HOST").unwrap());
 
         let client = reqwest::Client::new();
 
@@ -110,7 +126,8 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn drum_count_endpoint() {
-        let endpoint = format!("http://localhost:8000/api/v1/supplies/drum-count");
+        setup();
+        let endpoint = format!("http://{}/api/v1/supplies/drum-count", var("HOST").unwrap());
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -119,8 +136,10 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn drum_search_endpoint() {
+        setup();
         let endpoint = format!(
-            "http://localhost:8000/api/v1/supplies/drum/4340c4a2-eac5-4b51-9baa-40b498605a8c"
+            "http://{}/api/v1/supplies/drum/4340c4a2-eac5-4b51-9baa-40b498605a8c",
+            var("HOST").unwrap()
         );
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
@@ -130,7 +149,8 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn show_drums_endpoint() {
-        let endpoint = format!("http://localhost:8000/api/v1/supplies/drums");
+        setup();
+        let endpoint = format!("http://{}/api/v1/supplies/drums", var("HOST").unwrap());
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -139,11 +159,12 @@ pub mod tests {
 
     #[tokio::test]
     async fn create_drum_endpoint() {
+        setup();
         let body = r#"{
             "name": ""
         }"#;
 
-        let endpoint = "http://localhost:8000/api/v1/supplies/drums";
+        let endpoint = format!("http://{}/api/v1/supplies/drums", var("HOST").unwrap());
 
         let client = reqwest::Client::new();
 
@@ -160,12 +181,13 @@ pub mod tests {
 
     #[tokio::test]
     async fn update_drum_endpoint() {
+        setup();
         let body = r#"{
         "id": "4340c4a2-eac5-4b51-9baa-40b398605a8c",
         "name": "TEST Drum"
     }"#;
 
-        let endpoint = "http://localhost:8000/api/v1/supplies/drums";
+        let endpoint = format!("http://{}/api/v1/supplies/drums", var("HOST").unwrap());
 
         let client = reqwest::Client::new();
 
@@ -182,11 +204,12 @@ pub mod tests {
 
     #[tokio::test]
     async fn delete_drum_endpoint() {
+        setup();
         let body = r#"{
         "id": "4340c4a2-eac5-4b51-9baa-40b498605a8c"
     }"#;
 
-        let endpoint = "http://localhost:8000/api/v1/supplies/drums";
+        let endpoint = format!("http://{}/api/v1/supplies/drums", var("HOST").unwrap());
 
         let client = reqwest::Client::new();
 
@@ -205,7 +228,8 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn brand_count_endpoint() {
-        let endpoint = format!("http://localhost:8000/api/v1/brand-count");
+        setup();
+        let endpoint = format!("http://{}/api/v1/brand-count", var("HOST").unwrap());
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -214,8 +238,11 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn brand_search_endpoint() {
-        let endpoint =
-            format!("http://localhost:8000/api/v1/brand/4340c4a2-eac5-4b51-9baa-40b498605a8c");
+        setup();
+        let endpoint = format!(
+            "http://{}/api/v1/brand/4340c4a2-eac5-4b51-9baa-40b498605a8c",
+            var("HOST").unwrap()
+        );
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -224,7 +251,8 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn show_brands_endpoint() {
-        let endpoint = format!("http://localhost:8000/api/v1/brands");
+        setup();
+        let endpoint = format!("http://{}/api/v1/brands", var("HOST").unwrap());
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -233,11 +261,12 @@ pub mod tests {
 
     #[tokio::test]
     async fn create_brand_endpoint() {
+        setup();
         let body = r#"{
             "name": ""
         }"#;
 
-        let endpoint = "http://localhost:8000/api/v1/brands";
+        let endpoint = format!("http://{}/api/v1/brands", var("HOST").unwrap());
 
         let client = reqwest::Client::new();
 
@@ -254,12 +283,13 @@ pub mod tests {
 
     #[tokio::test]
     async fn update_brand_endpoint() {
+        setup();
         let body = r#"{
         "id": "4340c4a2-eac5-4b51-9baa-40b398605a8c",
         "name": "TEST brand"
     }"#;
 
-        let endpoint = "http://localhost:8000/api/v1/brands";
+        let endpoint = format!("http://{}/api/v1/brands", var("HOST").unwrap());
 
         let client = reqwest::Client::new();
 
@@ -276,11 +306,12 @@ pub mod tests {
 
     #[tokio::test]
     async fn delete_brand_endpoint() {
+        setup();
         let body = r#"{
         "id": "4340c4a2-eac5-4b51-9baa-40b498605a8c"
     }"#;
 
-        let endpoint = "http://localhost:8000/api/v1/brands";
+        let endpoint = format!("http://{}/api/v1/brands", var("HOST").unwrap());
 
         let client = reqwest::Client::new();
 
@@ -299,7 +330,8 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn printer_count_endpoint() {
-        let endpoint = format!("http://localhost:8000/api/v1/printer-count");
+        setup();
+        let endpoint = format!("http://{}/api/v1/printer-count", var("HOST").unwrap());
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -308,8 +340,11 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn printer_search_endpoint() {
-        let endpoint =
-            format!("http://localhost:8000/api/v1/printer/4340c4a2-eac5-4b51-9baa-40b498605a8c");
+        setup();
+        let endpoint = format!(
+            "http://{}/api/v1/printer/4340c4a2-eac5-4b51-9baa-40b498605a8c",
+            var("HOST").unwrap()
+        );
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -318,7 +353,8 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn show_printers_endpoint() {
-        let endpoint = format!("http://localhost:8000/api/v1/printers");
+        setup();
+        let endpoint = format!("http://{}/api/v1/printers", var("HOST").unwrap());
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -327,6 +363,7 @@ pub mod tests {
 
     #[tokio::test]
     async fn create_printer_endpoint() {
+        setup();
         let body = r#"{
         "name": "",
         "model": "TEST model",
@@ -335,7 +372,7 @@ pub mod tests {
         "drum": "wrong_id",
     }"#;
 
-        let endpoint = "http://localhost:8000/api/v1/printers";
+        let endpoint = format!("http://{}/api/v1/printers", var("HOST").unwrap());
 
         let client = reqwest::Client::new();
 
@@ -352,6 +389,7 @@ pub mod tests {
 
     #[tokio::test]
     async fn update_printer_endpoint() {
+        setup();
         let body = r#"{
             "id": "4340c4a2-eac5-4b51-9baa-40b398605a8c",
             "name": "TEST printer",
@@ -361,7 +399,7 @@ pub mod tests {
             "drum": "4340c4a2-eac5-4b51-9baa-40b498605a8c"
         }"#;
 
-        let endpoint = "http://localhost:8000/api/v1/printers";
+        let endpoint = format!("http://{}/api/v1/printers", var("HOST").unwrap());
 
         let client = reqwest::Client::new();
 
@@ -378,11 +416,12 @@ pub mod tests {
 
     #[tokio::test]
     async fn delete_printer_endpoint() {
+        setup();
         let body = r#"{
         "id": "4340c4a2-eac5-4b51-9baa-40b498605a8c"
     }"#;
 
-        let endpoint = "http://localhost:8000/api/v1/printers";
+        let endpoint = format!("http://{}/api/v1/printers", var("HOST").unwrap());
 
         let client = reqwest::Client::new();
 
@@ -403,7 +442,8 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn count_all_movements_endpoint() {
-        let endpoint = format!("http://localhost:8000/api/v1/movement-count");
+        setup();
+        let endpoint = format!("http://{}/api/v1/movement-count", var("HOST").unwrap());
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -412,7 +452,11 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn count_toner_movements_endpoint() {
-        let endpoint = format!("http://localhost:8000/api/v1/movement-count/toner");
+        setup();
+        let endpoint = format!(
+            "http://{}/api/v1/movement-count/toner",
+            var("HOST").unwrap()
+        );
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -421,7 +465,8 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn count_drum_movements_endpoint() {
-        let endpoint = format!("http://localhost:8000/api/v1/movement-count/drum");
+        setup();
+        let endpoint = format!("http://{}/api/v1/movement-count/drum", var("HOST").unwrap());
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -432,7 +477,8 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn show_all_movements_endpoint() {
-        let endpoint = format!("http://localhost:8000/api/v1/movements");
+        setup();
+        let endpoint = format!("http://{}/api/v1/movements", var("HOST").unwrap());
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -441,7 +487,8 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn show_toner_movements_endpoint() {
-        let endpoint = format!("http://localhost:8000/api/v1/movements/toner");
+        setup();
+        let endpoint = format!("http://{}/api/v1/movements/toner", var("HOST").unwrap());
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -450,7 +497,8 @@ pub mod tests {
 
     #[tokio::test]
     pub async fn show_drum_movements_endpoint() {
-        let endpoint = format!("http://localhost:8000/api/v1/movements/drum");
+        setup();
+        let endpoint = format!("http://{}/api/v1/movements/drum", var("HOST").unwrap());
         let client = reqwest::Client::new();
         let response = client.get(endpoint).send().await.unwrap();
 
@@ -459,11 +507,12 @@ pub mod tests {
 
     #[tokio::test]
     async fn delete_movement_endpoint() {
+        setup();
         let body = r#"{
         "id": "4340c4a2-eac5-4b51-9baa-40b498605a8c"
     }"#;
 
-        let endpoint = "http://localhost:8000/api/v1/movements";
+        let endpoint = format!("http://{}/api/v1/movements", var("HOST").unwrap());
 
         let client = reqwest::Client::new();
 
