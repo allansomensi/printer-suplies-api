@@ -28,8 +28,14 @@ dev:
     @sleep 1
     @just run-watch
 
+run:
+    @cargo run
+
 run-watch:
     @cargo watch -q -c -x run
+
+test:
+    @cargo test
 
 test-watch:
     @cargo watch -q -c -x test
