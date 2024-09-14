@@ -39,7 +39,47 @@
 												},
 												"description": "Provides the count of drums registered in the database."
 											},
-											"response": []
+											"response": [
+												{
+													"name": "count_drums",
+													"originalRequest": {
+														"method": "GET",
+														"header": [],
+														"url": {
+															"raw": "localhost:8000/api/v1/supplies/drum-count",
+															"host": [
+																"localhost"
+															],
+															"port": "8000",
+															"path": [
+																"api",
+																"v1",
+																"supplies",
+																"drum-count"
+															]
+														}
+													},
+													"status": "OK",
+													"code": 200,
+													"_postman_previewlanguage": "json",
+													"header": [
+														{
+															"key": "content-type",
+															"value": "application/json"
+														},
+														{
+															"key": "content-length",
+															"value": "1"
+														},
+														{
+															"key": "date",
+															"value": "Sat, 14 Sep 2024 01:22:51 GMT"
+														}
+													],
+													"cookie": [],
+													"body": "4"
+												}
+											]
 										},
 										{
 											"name": "search_drum",
@@ -47,7 +87,7 @@
 												"method": "GET",
 												"header": [],
 												"url": {
-													"raw": "localhost:8000/api/v1/supplies/drum/5c79142c-ace2-451d-a4af-897f943ef771",
+													"raw": "localhost:8000/api/v1/supplies/drum/<drum_id>",
 													"host": [
 														"localhost"
 													],
@@ -57,12 +97,53 @@
 														"v1",
 														"supplies",
 														"drum",
-														"5c79142c-ace2-451d-a4af-897f943ef771"
+														"<drum_id>"
 													]
 												},
 												"description": "Searches for a drum by its ID."
 											},
-											"response": []
+											"response": [
+												{
+													"name": "search_drum",
+													"originalRequest": {
+														"method": "GET",
+														"header": [],
+														"url": {
+															"raw": "localhost:8000/api/v1/supplies/drum/93148194-10bb-47aa-a699-f2b5d4634b7b",
+															"host": [
+																"localhost"
+															],
+															"port": "8000",
+															"path": [
+																"api",
+																"v1",
+																"supplies",
+																"drum",
+																"93148194-10bb-47aa-a699-f2b5d4634b7b"
+															]
+														}
+													},
+													"status": "OK",
+													"code": 200,
+													"_postman_previewlanguage": "json",
+													"header": [
+														{
+															"key": "content-type",
+															"value": "application/json"
+														},
+														{
+															"key": "content-length",
+															"value": "70"
+														},
+														{
+															"key": "date",
+															"value": "Sat, 14 Sep 2024 01:25:03 GMT"
+														}
+													],
+													"cookie": [],
+													"body": "{\n    \"id\": \"93148194-10bb-47aa-a699-f2b5d4634b7b\",\n    \"name\": \"DR315\",\n    \"stock\": 2\n}"
+												}
+											]
 										},
 										{
 											"name": "show_drums",
@@ -84,7 +165,47 @@
 												},
 												"description": "Shows all drums."
 											},
-											"response": []
+											"response": [
+												{
+													"name": "show_drums",
+													"originalRequest": {
+														"method": "GET",
+														"header": [],
+														"url": {
+															"raw": "localhost:8000/api/v1/supplies/drums",
+															"host": [
+																"localhost"
+															],
+															"port": "8000",
+															"path": [
+																"api",
+																"v1",
+																"supplies",
+																"drums"
+															]
+														}
+													},
+													"status": "OK",
+													"code": 200,
+													"_postman_previewlanguage": "json",
+													"header": [
+														{
+															"key": "content-type",
+															"value": "application/json"
+														},
+														{
+															"key": "content-length",
+															"value": "144"
+														},
+														{
+															"key": "date",
+															"value": "Sat, 14 Sep 2024 01:26:29 GMT"
+														}
+													],
+													"cookie": [],
+													"body": "[\n    {\n        \"id\": \"93148194-10bb-47aa-a699-f2b5d4634b7b\",\n        \"name\": \"DR315\",\n        \"stock\": 2\n    },\n    {\n        \"id\": \"8e0695e4-538c-4188-bb31-09c647be096b\",\n        \"name\": \"DRB431\",\n        \"stock\": 0\n    }\n]"
+												}
+											]
 										},
 										{
 											"name": "create_drum",
@@ -93,7 +214,7 @@
 												"header": [],
 												"body": {
 													"mode": "raw",
-													"raw": "{\n  \"name\": \"DR-B431\"\n}\n",
+													"raw": "{\n  \"name\": \"<drum_name>\"\n}\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -115,7 +236,43 @@
 												},
 												"description": "Creates a new drum."
 											},
-											"response": []
+											"response": [
+												{
+													"name": "create_drum",
+													"originalRequest": {
+														"method": "POST",
+														"header": [],
+														"body": {
+															"mode": "raw",
+															"raw": "{\n  \"name\": \"DR315\"\n}\n",
+															"options": {
+																"raw": {
+																	"language": "json"
+																}
+															}
+														},
+														"url": {
+															"raw": "localhost:8000/api/v1/supplies/drums",
+															"host": [
+																"localhost"
+															],
+															"port": "8000",
+															"path": [
+																"api",
+																"v1",
+																"supplies",
+																"drums"
+															]
+														}
+													},
+													"status": "OK",
+													"code": 200,
+													"_postman_previewlanguage": null,
+													"header": null,
+													"cookie": [],
+													"body": null
+												}
+											]
 										},
 										{
 											"name": "update_drum",
@@ -124,7 +281,7 @@
 												"header": [],
 												"body": {
 													"mode": "raw",
-													"raw": "{\n    \"id\": \"222b6de2-262c-4010-85e4-9d65a624da06\",\n    \"name\": \"DR-B431_updated\"\n}",
+													"raw": "{\n    \"id\": \"<drum_id>\",\n    \"name\": \"<new_name>\"\n}",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -146,7 +303,52 @@
 												},
 												"description": "Updates an existing drum."
 											},
-											"response": []
+											"response": [
+												{
+													"name": "update_drum",
+													"originalRequest": {
+														"method": "PUT",
+														"header": [],
+														"body": {
+															"mode": "raw",
+															"raw": "{\n    \"id\": \"e03b92e6-83a6-4448-b550-27e9151c71e6\",\n    \"name\": \"DR-B431\"\n}",
+															"options": {
+																"raw": {
+																	"language": "json"
+																}
+															}
+														},
+														"url": {
+															"raw": "localhost:8000/api/v1/supplies/drums",
+															"host": [
+																"localhost"
+															],
+															"port": "8000",
+															"path": [
+																"api",
+																"v1",
+																"supplies",
+																"drums"
+															]
+														}
+													},
+													"status": "OK",
+													"code": 200,
+													"_postman_previewlanguage": "plain",
+													"header": [
+														{
+															"key": "content-length",
+															"value": "0"
+														},
+														{
+															"key": "date",
+															"value": "Sat, 14 Sep 2024 01:34:08 GMT"
+														}
+													],
+													"cookie": [],
+													"body": null
+												}
+											]
 										},
 										{
 											"name": "delete_drum",
@@ -155,7 +357,7 @@
 												"header": [],
 												"body": {
 													"mode": "raw",
-													"raw": "{\n  \"id\": \"222b6de2-262c-4010-85e4-9d65a624da06\"\n}\n",
+													"raw": "{\n  \"id\": \"<drum_id>\"\n}\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -177,7 +379,52 @@
 												},
 												"description": "Deletes a drum by its ID."
 											},
-											"response": []
+											"response": [
+												{
+													"name": "delete_drum",
+													"originalRequest": {
+														"method": "DELETE",
+														"header": [],
+														"body": {
+															"mode": "raw",
+															"raw": "{\n  \"id\": \"8e0695e4-538c-4188-bb31-09c647be096b\"\n}\n",
+															"options": {
+																"raw": {
+																	"language": "json"
+																}
+															}
+														},
+														"url": {
+															"raw": "localhost:8000/api/v1/supplies/drums",
+															"host": [
+																"localhost"
+															],
+															"port": "8000",
+															"path": [
+																"api",
+																"v1",
+																"supplies",
+																"drums"
+															]
+														}
+													},
+													"status": "OK",
+													"code": 200,
+													"_postman_previewlanguage": "plain",
+													"header": [
+														{
+															"key": "content-length",
+															"value": "0"
+														},
+														{
+															"key": "date",
+															"value": "Sat, 14 Sep 2024 01:33:14 GMT"
+														}
+													],
+													"cookie": [],
+													"body": null
+												}
+											]
 										}
 									],
 									"description": "Endpoints for the CRUD of drums."
@@ -205,7 +452,47 @@
 												},
 												"description": "Provides the count of toners registered in the database."
 											},
-											"response": []
+											"response": [
+												{
+													"name": "count_toners",
+													"originalRequest": {
+														"method": "GET",
+														"header": [],
+														"url": {
+															"raw": "localhost:8000/api/v1/supplies/toner-count",
+															"host": [
+																"localhost"
+															],
+															"port": "8000",
+															"path": [
+																"api",
+																"v1",
+																"supplies",
+																"toner-count"
+															]
+														}
+													},
+													"status": "OK",
+													"code": 200,
+													"_postman_previewlanguage": "json",
+													"header": [
+														{
+															"key": "content-type",
+															"value": "application/json"
+														},
+														{
+															"key": "content-length",
+															"value": "1"
+														},
+														{
+															"key": "date",
+															"value": "Sat, 14 Sep 2024 01:37:02 GMT"
+														}
+													],
+													"cookie": [],
+													"body": "1"
+												}
+											]
 										},
 										{
 											"name": "search_toner",
@@ -213,7 +500,7 @@
 												"method": "GET",
 												"header": [],
 												"url": {
-													"raw": "localhost:8000/api/v1/supplies/toner/a750bdee-d64d-40c5-b42b-0cfdb6651aec",
+													"raw": "localhost:8000/api/v1/supplies/toner/<toner_id>",
 													"host": [
 														"localhost"
 													],
@@ -223,12 +510,53 @@
 														"v1",
 														"supplies",
 														"toner",
-														"a750bdee-d64d-40c5-b42b-0cfdb6651aec"
+														"<toner_id>"
 													]
 												},
 												"description": "Searches for a toner by its ID."
 											},
-											"response": []
+											"response": [
+												{
+													"name": "search_toner",
+													"originalRequest": {
+														"method": "GET",
+														"header": [],
+														"url": {
+															"raw": "localhost:8000/api/v1/supplies/toner/7ae8fb09-1282-4f82-b078-c3e5d4a83dba",
+															"host": [
+																"localhost"
+															],
+															"port": "8000",
+															"path": [
+																"api",
+																"v1",
+																"supplies",
+																"toner",
+																"7ae8fb09-1282-4f82-b078-c3e5d4a83dba"
+															]
+														}
+													},
+													"status": "OK",
+													"code": 200,
+													"_postman_previewlanguage": "json",
+													"header": [
+														{
+															"key": "content-type",
+															"value": "application/json"
+														},
+														{
+															"key": "content-length",
+															"value": "71"
+														},
+														{
+															"key": "date",
+															"value": "Sat, 14 Sep 2024 01:38:57 GMT"
+														}
+													],
+													"cookie": [],
+													"body": "{\n    \"id\": \"7ae8fb09-1282-4f82-b078-c3e5d4a83dba\",\n    \"name\": \"TN-315\",\n    \"stock\": 5\n}"
+												}
+											]
 										},
 										{
 											"name": "show_toners",
@@ -250,7 +578,47 @@
 												},
 												"description": "Shows all toners."
 											},
-											"response": []
+											"response": [
+												{
+													"name": "show_toners",
+													"originalRequest": {
+														"method": "GET",
+														"header": [],
+														"url": {
+															"raw": "localhost:8000/api/v1/supplies/toners",
+															"host": [
+																"localhost"
+															],
+															"port": "8000",
+															"path": [
+																"api",
+																"v1",
+																"supplies",
+																"toners"
+															]
+														}
+													},
+													"status": "OK",
+													"code": 200,
+													"_postman_previewlanguage": "json",
+													"header": [
+														{
+															"key": "content-type",
+															"value": "application/json"
+														},
+														{
+															"key": "content-length",
+															"value": "146"
+														},
+														{
+															"key": "date",
+															"value": "Sat, 14 Sep 2024 01:38:39 GMT"
+														}
+													],
+													"cookie": [],
+													"body": "[\n    {\n        \"id\": \"7ae8fb09-1282-4f82-b078-c3e5d4a83dba\",\n        \"name\": \"TN-315\",\n        \"stock\": 5\n    },\n    {\n        \"id\": \"c1f4d3e1-20d7-4751-82dd-6e542cdeddd2\",\n        \"name\": \"TN-2340\",\n        \"stock\": 0\n    }\n]"
+												}
+											]
 										},
 										{
 											"name": "create_toner",
@@ -259,7 +627,7 @@
 												"header": [],
 												"body": {
 													"mode": "raw",
-													"raw": "{\n  \"name\": \"TN-B431\",\n  \"color\": \"black\"\n}\n",
+													"raw": "{\n  \"name\": \"<toner_name>\"\n}\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -281,7 +649,52 @@
 												},
 												"description": "Creates a new toner."
 											},
-											"response": []
+											"response": [
+												{
+													"name": "create_toner",
+													"originalRequest": {
+														"method": "POST",
+														"header": [],
+														"body": {
+															"mode": "raw",
+															"raw": "{\n  \"name\": \"TN-2340\"\n}\n",
+															"options": {
+																"raw": {
+																	"language": "json"
+																}
+															}
+														},
+														"url": {
+															"raw": "localhost:8000/api/v1/supplies/toners",
+															"host": [
+																"localhost"
+															],
+															"port": "8000",
+															"path": [
+																"api",
+																"v1",
+																"supplies",
+																"toners"
+															]
+														}
+													},
+													"status": "Created",
+													"code": 201,
+													"_postman_previewlanguage": "plain",
+													"header": [
+														{
+															"key": "content-length",
+															"value": "0"
+														},
+														{
+															"key": "date",
+															"value": "Sat, 14 Sep 2024 01:38:00 GMT"
+														}
+													],
+													"cookie": [],
+													"body": null
+												}
+											]
 										},
 										{
 											"name": "update_toner",
@@ -290,7 +703,7 @@
 												"header": [],
 												"body": {
 													"mode": "raw",
-													"raw": "{\n    \"id\": \"a750bdee-d64d-40c5-b42b-0cfdb6651aec\",\n    \"name\": \"TN-B431_updated\",\n    \"color\": \"black_updated\"\n}",
+													"raw": "{\n    \"id\": \"<toner_id>\",\n    \"name\": \"<new_name>\"\n}",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -312,7 +725,52 @@
 												},
 												"description": "Updates an existing toner."
 											},
-											"response": []
+											"response": [
+												{
+													"name": "update_toner",
+													"originalRequest": {
+														"method": "PUT",
+														"header": [],
+														"body": {
+															"mode": "raw",
+															"raw": "{\n    \"id\": \"c1f4d3e1-20d7-4751-82dd-6e542cdeddd2\",\n    \"name\": \"TN-2340\"\n}",
+															"options": {
+																"raw": {
+																	"language": "json"
+																}
+															}
+														},
+														"url": {
+															"raw": "localhost:8000/api/v1/supplies/toners",
+															"host": [
+																"localhost"
+															],
+															"port": "8000",
+															"path": [
+																"api",
+																"v1",
+																"supplies",
+																"toners"
+															]
+														}
+													},
+													"status": "OK",
+													"code": 200,
+													"_postman_previewlanguage": "plain",
+													"header": [
+														{
+															"key": "content-length",
+															"value": "0"
+														},
+														{
+															"key": "date",
+															"value": "Sat, 14 Sep 2024 01:40:21 GMT"
+														}
+													],
+													"cookie": [],
+													"body": null
+												}
+											]
 										},
 										{
 											"name": "delete_toner",
@@ -321,7 +779,7 @@
 												"header": [],
 												"body": {
 													"mode": "raw",
-													"raw": "{\n  \"id\": \"0191d99c-dfde-7c92-99b7-c09289187964\"\n}\n",
+													"raw": "{\n  \"id\": \"<toner_id>\"\n}\n",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -343,173 +801,58 @@
 												},
 												"description": "Deletes a toner by its ID."
 											},
-											"response": []
+											"response": [
+												{
+													"name": "delete_toner",
+													"originalRequest": {
+														"method": "DELETE",
+														"header": [],
+														"body": {
+															"mode": "raw",
+															"raw": "{\n  \"id\": \"c1f4d3e1-20d7-4751-82dd-6e542cdeddd2\"\n}\n",
+															"options": {
+																"raw": {
+																	"language": "json"
+																}
+															}
+														},
+														"url": {
+															"raw": "localhost:8000/api/v1/supplies/toners",
+															"host": [
+																"localhost"
+															],
+															"port": "8000",
+															"path": [
+																"api",
+																"v1",
+																"supplies",
+																"toners"
+															]
+														}
+													},
+													"status": "OK",
+													"code": 200,
+													"_postman_previewlanguage": "plain",
+													"header": [
+														{
+															"key": "content-length",
+															"value": "0"
+														},
+														{
+															"key": "date",
+															"value": "Sat, 14 Sep 2024 01:41:20 GMT"
+														}
+													],
+													"cookie": [],
+													"body": null
+												}
+											]
 										}
 									],
 									"description": "Endpoints for the CRUD of toners."
 								}
 							],
 							"description": "Endpoints for the CRUDs of supplies."
-						},
-						{
-							"name": "printers",
-							"item": [
-								{
-									"name": "count_printers",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "localhost:8000/api/v1/printer-count",
-											"host": [
-												"localhost"
-											],
-											"port": "8000",
-											"path": [
-												"api",
-												"v1",
-												"printer-count"
-											]
-										},
-										"description": "Provides the count of printers registered in the database."
-									},
-									"response": []
-								},
-								{
-									"name": "search_printer",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "localhost:8000/api/v1/printer/a750bdee-d64d-40c5-b42b-0cfdb6651aec",
-											"host": [
-												"localhost"
-											],
-											"port": "8000",
-											"path": [
-												"api",
-												"v1",
-												"printer",
-												"a750bdee-d64d-40c5-b42b-0cfdb6651aec"
-											]
-										},
-										"description": "Searches for a printer by its ID."
-									},
-									"response": []
-								},
-								{
-									"name": "show_printers",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "localhost:8000/api/v1/printers",
-											"host": [
-												"localhost"
-											],
-											"port": "8000",
-											"path": [
-												"api",
-												"v1",
-												"printers"
-											]
-										},
-										"description": "Shows all printers."
-									},
-									"response": []
-								},
-								{
-									"name": "create_printer",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \"name\": \"Administrative Printer\",\n    \"model\": \"OKI-B431\",\n    \"brand\": \"0191d9e5-62e8-7943-94bb-c06715391748\",\n    \"toner\": \"0191d9e6-1fff-7ad1-a26f-2763423939f1\",\n    \"drum\": \"0191d9e5-eaec-7010-b54d-55c2cfee63b4\"\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "localhost:8000/api/v1/printers",
-											"host": [
-												"localhost"
-											],
-											"port": "8000",
-											"path": [
-												"api",
-												"v1",
-												"printers"
-											]
-										},
-										"description": "Creates a new printer."
-									},
-									"response": []
-								},
-								{
-									"name": "update_printer",
-									"request": {
-										"method": "PUT",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \"id\": \"a750bdee-d64d-40c5-b42b-0cfdb6651aec\",\n    \"name\": \"Administrative Printer --updated--\",\n    \"model\": \"DCP-L6527DW\",\n    \"brand\": \"0191d9e5-62e8-7943-94bb-c06715391748\",\n    \"toner\": \"0191d9e6-1fff-7ad1-a26f-2763423939f1\",\n    \"drum\": \"0191d9e5-eaec-7010-b54d-55c2cfee63b4\"\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "localhost:8000/api/v1/printers",
-											"host": [
-												"localhost"
-											],
-											"port": "8000",
-											"path": [
-												"api",
-												"v1",
-												"printers"
-											]
-										},
-										"description": "Updates an existing printer."
-									},
-									"response": []
-								},
-								{
-									"name": "delete_printer",
-									"request": {
-										"method": "DELETE",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n  \"id\": \"0191d9a8-2cc5-7a71-899d-dde496a53d58\"\n}\n",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "localhost:8000/api/v1/printers",
-											"host": [
-												"localhost"
-											],
-											"port": "8000",
-											"path": [
-												"api",
-												"v1",
-												"printers"
-											]
-										},
-										"description": "Deletes a printer by its ID."
-									},
-									"response": []
-								}
-							],
-							"description": "Endpoints for the CRUD of printers."
 						},
 						{
 							"name": "brands",
@@ -533,7 +876,46 @@
 										},
 										"description": "Provides the count of brands registered in the database."
 									},
-									"response": []
+									"response": [
+										{
+											"name": "count_brands",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "localhost:8000/api/v1/brand-count",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"brand-count"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "content-type",
+													"value": "application/json"
+												},
+												{
+													"key": "content-length",
+													"value": "1"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 01:43:02 GMT"
+												}
+											],
+											"cookie": [],
+											"body": "1"
+										}
+									]
 								},
 								{
 									"name": "search_brand",
@@ -541,7 +923,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "localhost:8000/api/v1/brand/c130f1a1-216a-4b36-87a8-165becd30aec",
+											"raw": "localhost:8000/api/v1/brand/<brand_id>",
 											"host": [
 												"localhost"
 											],
@@ -550,12 +932,52 @@
 												"api",
 												"v1",
 												"brand",
-												"c130f1a1-216a-4b36-87a8-165becd30aec"
+												"<brand_id>"
 											]
 										},
 										"description": "Searches for a brand by its ID."
 									},
-									"response": []
+									"response": [
+										{
+											"name": "search_brand",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "localhost:8000/api/v1/brand/0a343d86-1f9b-470d-a373-203a0634fdae",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"brand",
+														"0a343d86-1f9b-470d-a373-203a0634fdae"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "content-type",
+													"value": "application/json"
+												},
+												{
+													"key": "content-length",
+													"value": "62"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 01:43:27 GMT"
+												}
+											],
+											"cookie": [],
+											"body": "{\n    \"id\": \"0a343d86-1f9b-470d-a373-203a0634fdae\",\n    \"name\": \"Brother\"\n}"
+										}
+									]
 								},
 								{
 									"name": "show_brands",
@@ -576,7 +998,46 @@
 										},
 										"description": "Shows all brands."
 									},
-									"response": []
+									"response": [
+										{
+											"name": "show_brands",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "localhost:8000/api/v1/brands",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"brands"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "content-type",
+													"value": "application/json"
+												},
+												{
+													"key": "content-length",
+													"value": "125"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 01:45:39 GMT"
+												}
+											],
+											"cookie": [],
+											"body": "[\n    {\n        \"id\": \"0a343d86-1f9b-470d-a373-203a0634fdae\",\n        \"name\": \"Brother\"\n    },\n    {\n        \"id\": \"c3305077-f47d-40ca-b7d2-71912a79a939\",\n        \"name\": \"Xerox\"\n    }\n]"
+										}
+									]
 								},
 								{
 									"name": "create_brand",
@@ -585,7 +1046,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"name\": \"OKI Eletric\"\n}\n",
+											"raw": "{\n  \"name\": \"<brand_name>\"\n}\n",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -606,7 +1067,51 @@
 										},
 										"description": "Creates a new brand."
 									},
-									"response": []
+									"response": [
+										{
+											"name": "create_brand",
+											"originalRequest": {
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"name\": \"Xerox\"\n}\n",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "localhost:8000/api/v1/brands",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"brands"
+													]
+												}
+											},
+											"status": "Created",
+											"code": 201,
+											"_postman_previewlanguage": "plain",
+											"header": [
+												{
+													"key": "content-length",
+													"value": "0"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 01:45:19 GMT"
+												}
+											],
+											"cookie": [],
+											"body": null
+										}
+									]
 								},
 								{
 									"name": "update_brand",
@@ -615,7 +1120,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"id\": \"c130f1a1-216a-4b36-87a8-165becd30aec\",\n    \"name\": \"Brother\"\n}",
+											"raw": "{\n    \"id\": \"<brand_id>\",\n    \"name\": \"<new_name>\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -636,7 +1141,51 @@
 										},
 										"description": "Updates an existing brand."
 									},
-									"response": []
+									"response": [
+										{
+											"name": "update_brand",
+											"originalRequest": {
+												"method": "PUT",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"id\": \"c3305077-f47d-40ca-b7d2-71912a79a939\",\n    \"name\": \"OKI Eletric\"\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "localhost:8000/api/v1/brands",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"brands"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "plain",
+											"header": [
+												{
+													"key": "content-length",
+													"value": "0"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 01:46:13 GMT"
+												}
+											],
+											"cookie": [],
+											"body": null
+										}
+									]
 								},
 								{
 									"name": "delete_brand",
@@ -645,7 +1194,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"id\": \"0191d9a3-a934-7d51-ad03-d647d9f4fb4a\"\n}\n",
+											"raw": "{\n  \"id\": \"<brand_id>\"\n}\n",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -666,10 +1215,1064 @@
 										},
 										"description": "Deletes a brand by its ID."
 									},
-									"response": []
+									"response": [
+										{
+											"name": "delete_brand",
+											"originalRequest": {
+												"method": "DELETE",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"id\": \"c3305077-f47d-40ca-b7d2-71912a79a939\"\n}\n",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "localhost:8000/api/v1/brands",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"brands"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "plain",
+											"header": [
+												{
+													"key": "content-length",
+													"value": "0"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 01:47:00 GMT"
+												}
+											],
+											"cookie": [],
+											"body": null
+										}
+									]
 								}
 							],
 							"description": "Endpoints for the CRUD of brands."
+						},
+						{
+							"name": "printers",
+							"item": [
+								{
+									"name": "count_printers",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "localhost:8000/api/v1/printer-count",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"printer-count"
+											]
+										},
+										"description": "Provides the count of printers registered in the database."
+									},
+									"response": [
+										{
+											"name": "count_printers",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "localhost:8000/api/v1/printer-count",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"printer-count"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "content-type",
+													"value": "application/json"
+												},
+												{
+													"key": "content-length",
+													"value": "1"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 01:47:22 GMT"
+												}
+											],
+											"cookie": [],
+											"body": "1"
+										}
+									]
+								},
+								{
+									"name": "search_printer",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "localhost:8000/api/v1/printer/<printer_id>",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"printer",
+												"<printer_id>"
+											]
+										},
+										"description": "Searches for a printer by its ID."
+									},
+									"response": [
+										{
+											"name": "search_printer",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "localhost:8000/api/v1/printer/47a671d0-34df-4aee-b88c-32073032b71d",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"printer",
+														"47a671d0-34df-4aee-b88c-32073032b71d"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "content-type",
+													"value": "application/json"
+												},
+												{
+													"key": "content-length",
+													"value": "237"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 01:47:52 GMT"
+												}
+											],
+											"cookie": [],
+											"body": "{\n    \"id\": \"47a671d0-34df-4aee-b88c-32073032b71d\",\n    \"name\": \"Administrative\",\n    \"model\": \"Brother DCP-31523\",\n    \"brand\": \"0a343d86-1f9b-470d-a373-203a0634fdae\",\n    \"toner\": \"7ae8fb09-1282-4f82-b078-c3e5d4a83dba\",\n    \"drum\": \"93148194-10bb-47aa-a699-f2b5d4634b7b\"\n}"
+										}
+									]
+								},
+								{
+									"name": "show_printers",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "localhost:8000/api/v1/printers",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"printers"
+											]
+										},
+										"description": "Shows all printers."
+									},
+									"response": [
+										{
+											"name": "show_printers",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "localhost:8000/api/v1/printers",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"printers"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "content-type",
+													"value": "application/json"
+												},
+												{
+													"key": "content-length",
+													"value": "239"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 01:49:31 GMT"
+												}
+											],
+											"cookie": [],
+											"body": "[\n    {\n        \"id\": \"47a671d0-34df-4aee-b88c-32073032b71d\",\n        \"name\": \"Administrative\",\n        \"model\": \"Brother DCP-31523\",\n        \"brand\": \"0a343d86-1f9b-470d-a373-203a0634fdae\",\n        \"toner\": \"7ae8fb09-1282-4f82-b078-c3e5d4a83dba\",\n        \"drum\": \"93148194-10bb-47aa-a699-f2b5d4634b7b\"\n    }\n]"
+										}
+									]
+								},
+								{
+									"name": "create_printer",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\": \"<printer_name>\",\n    \"model\": \"<printer_model_name>\",\n    \"brand\": \"<printer_brand_id>\",\n    \"toner\": \"<printer_toner_id>\",\n    \"drum\": \"<printer_drum_id>\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "localhost:8000/api/v1/printers",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"printers"
+											]
+										},
+										"description": "Creates a new printer."
+									},
+									"response": [
+										{
+											"name": "create_printer",
+											"originalRequest": {
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"name\": \"Administrative\",\n    \"model\": \"Xerox C8030\",\n    \"brand\": \"1a46cd23-5fc0-4b97-944e-3a3295914089\",\n    \"toner\": \"fb90c923-89f3-468d-a30d-b343acd69cc1\",\n    \"drum\": \"66e8f90b-da35-4e58-b718-4bb2fd241201\"\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "localhost:8000/api/v1/printers",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"printers"
+													]
+												}
+											},
+											"status": "Created",
+											"code": 201,
+											"_postman_previewlanguage": "plain",
+											"header": [
+												{
+													"key": "content-length",
+													"value": "0"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 01:55:41 GMT"
+												}
+											],
+											"cookie": [],
+											"body": null
+										}
+									]
+								},
+								{
+									"name": "update_printer",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"id\": \"<printer_id>\",\n    \"name\": \"<printer_name>\",\n    \"model\": \"<printer_model>\",\n    \"brand\": \"<printer_brand_id>\",\n    \"toner\": \"<printer_toner_id>\",\n    \"drum\": \"<printer_drum_id>\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "localhost:8000/api/v1/printers",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"printers"
+											]
+										},
+										"description": "Updates an existing printer."
+									},
+									"response": [
+										{
+											"name": "update_printer",
+											"originalRequest": {
+												"method": "PUT",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"id\": \"3c48388a-2ecd-4f9d-9a54-6115e11e73a3\",\n    \"name\": \"Office\",\n    \"model\": \"DCP-L6527DW\",\n    \"brand\": \"1a46cd23-5fc0-4b97-944e-3a3295914089\",\n    \"toner\": \"fb90c923-89f3-468d-a30d-b343acd69cc1\",\n    \"drum\": \"66e8f90b-da35-4e58-b718-4bb2fd241201\"\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "localhost:8000/api/v1/printers",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"printers"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "plain",
+											"header": [
+												{
+													"key": "content-length",
+													"value": "0"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 02:12:57 GMT"
+												}
+											],
+											"cookie": [],
+											"body": null
+										}
+									]
+								},
+								{
+									"name": "delete_printer",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"id\": \"<printer_id>\"\n}\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "localhost:8000/api/v1/printers",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"printers"
+											]
+										},
+										"description": "Deletes a printer by its ID."
+									},
+									"response": [
+										{
+											"name": "delete_printer",
+											"originalRequest": {
+												"method": "DELETE",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"id\": \"3c48388a-2ecd-4f9d-9a54-6115e11e73a3\"\n}\n",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "localhost:8000/api/v1/printers",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"printers"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "plain",
+											"header": [
+												{
+													"key": "content-length",
+													"value": "0"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 02:14:43 GMT"
+												}
+											],
+											"cookie": [],
+											"body": null
+										}
+									]
+								}
+							],
+							"description": "Endpoints for the CRUD of printers."
+						},
+						{
+							"name": "movements",
+							"item": [
+								{
+									"name": "count_all_movements",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "localhost:8000/api/v1/movement-count",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"movement-count"
+											]
+										},
+										"description": "Provides the count of all movements registered in the database."
+									},
+									"response": [
+										{
+											"name": "count_all_movements",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "localhost:8000/api/v1/movement-count",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"movement-count"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "content-type",
+													"value": "application/json"
+												},
+												{
+													"key": "content-length",
+													"value": "1"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 02:15:01 GMT"
+												}
+											],
+											"cookie": [],
+											"body": "3"
+										}
+									]
+								},
+								{
+									"name": "count_toner_movements",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "localhost:8000/api/v1/movement-count/toner",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"movement-count",
+												"toner"
+											]
+										},
+										"description": "Provides the count of toner movements registered in the database."
+									},
+									"response": [
+										{
+											"name": "count_toner_movements",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "localhost:8000/api/v1/movement-count/toner",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"movement-count",
+														"toner"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "content-type",
+													"value": "application/json"
+												},
+												{
+													"key": "content-length",
+													"value": "1"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 02:15:08 GMT"
+												}
+											],
+											"cookie": [],
+											"body": "1"
+										}
+									]
+								},
+								{
+									"name": "count_drum_movements",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "localhost:8000/api/v1/movement-count/drum",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"movement-count",
+												"drum"
+											]
+										},
+										"description": "Provides the count of drum movements registered in the database."
+									},
+									"response": [
+										{
+											"name": "count_drum_movements",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "localhost:8000/api/v1/movement-count/drum",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"movement-count",
+														"drum"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "content-type",
+													"value": "application/json"
+												},
+												{
+													"key": "content-length",
+													"value": "1"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 02:15:13 GMT"
+												}
+											],
+											"cookie": [],
+											"body": "2"
+										}
+									]
+								},
+								{
+									"name": "show_all_movements",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "localhost:8000/api/v1/movements",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"movements"
+											]
+										},
+										"description": "Shows all movements."
+									},
+									"response": [
+										{
+											"name": "show_all_movements",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "localhost:8000/api/v1/movements",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"movements"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "content-type",
+													"value": "application/json"
+												},
+												{
+													"key": "content-length",
+													"value": "659"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 02:15:17 GMT"
+												}
+											],
+											"cookie": [],
+											"body": "[\n    {\n        \"id\": \"2654c89d-c731-41ab-bee4-f40cbaf65b80\",\n        \"printer_id\": \"47a671d0-34df-4aee-b88c-32073032b71d\",\n        \"toner_id\": null,\n        \"drum_id\": \"93148194-10bb-47aa-a699-f2b5d4634b7b\",\n        \"quantity\": 3,\n        \"created_at\": \"2024-09-14T01:04:07.054205Z\"\n    },\n    {\n        \"id\": \"125ead19-ba0f-43b3-afa7-86a82838d8dc\",\n        \"printer_id\": \"47a671d0-34df-4aee-b88c-32073032b71d\",\n        \"toner_id\": null,\n        \"drum_id\": \"93148194-10bb-47aa-a699-f2b5d4634b7b\",\n        \"quantity\": -1,\n        \"created_at\": \"2024-09-14T01:06:58.407676Z\"\n    },\n    {\n        \"id\": \"fb7e96b8-e06a-4b82-9e2f-d28e5d230bb3\",\n        \"printer_id\": \"47a671d0-34df-4aee-b88c-32073032b71d\",\n        \"toner_id\": \"7ae8fb09-1282-4f82-b078-c3e5d4a83dba\",\n        \"drum_id\": null,\n        \"quantity\": 5,\n        \"created_at\": \"2024-09-14T01:21:29.419728Z\"\n    }\n]"
+										}
+									]
+								},
+								{
+									"name": "show_toner_movements",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "localhost:8000/api/v1/movements/toner",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"movements",
+												"toner"
+											]
+										},
+										"description": "Shows toner movements."
+									},
+									"response": [
+										{
+											"name": "show_toner_movements",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "localhost:8000/api/v1/movements/toner",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"movements",
+														"toner"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "content-type",
+													"value": "application/json"
+												},
+												{
+													"key": "content-length",
+													"value": "220"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 02:15:26 GMT"
+												}
+											],
+											"cookie": [],
+											"body": "[\n    {\n        \"id\": \"fb7e96b8-e06a-4b82-9e2f-d28e5d230bb3\",\n        \"printer_id\": \"47a671d0-34df-4aee-b88c-32073032b71d\",\n        \"toner_id\": \"7ae8fb09-1282-4f82-b078-c3e5d4a83dba\",\n        \"drum_id\": null,\n        \"quantity\": 5,\n        \"created_at\": \"2024-09-14T01:21:29.419728Z\"\n    }\n]"
+										}
+									]
+								},
+								{
+									"name": "show_drum_movements",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "localhost:8000/api/v1/movements/drum",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"movements",
+												"drum"
+											]
+										},
+										"description": "Shows drum movements."
+									},
+									"response": [
+										{
+											"name": "show_drum_movements",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "localhost:8000/api/v1/movements/drum",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"movements",
+														"drum"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "content-type",
+													"value": "application/json"
+												},
+												{
+													"key": "content-length",
+													"value": "440"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 02:15:31 GMT"
+												}
+											],
+											"cookie": [],
+											"body": "[\n    {\n        \"id\": \"2654c89d-c731-41ab-bee4-f40cbaf65b80\",\n        \"printer_id\": \"47a671d0-34df-4aee-b88c-32073032b71d\",\n        \"toner_id\": null,\n        \"drum_id\": \"93148194-10bb-47aa-a699-f2b5d4634b7b\",\n        \"quantity\": 3,\n        \"created_at\": \"2024-09-14T01:04:07.054205Z\"\n    },\n    {\n        \"id\": \"125ead19-ba0f-43b3-afa7-86a82838d8dc\",\n        \"printer_id\": \"47a671d0-34df-4aee-b88c-32073032b71d\",\n        \"toner_id\": null,\n        \"drum_id\": \"93148194-10bb-47aa-a699-f2b5d4634b7b\",\n        \"quantity\": -1,\n        \"created_at\": \"2024-09-14T01:06:58.407676Z\"\n    }\n]"
+										}
+									]
+								},
+								{
+									"name": "create_toner_movement",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"toner_id\": \"<toner_id>\",\n  \"quantity\": <quantity_changed>\n}\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "localhost:8000/api/v1/movements/toner",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"movements",
+												"toner"
+											]
+										},
+										"description": "Creates a new toner movement."
+									},
+									"response": [
+										{
+											"name": "create_toner_movement",
+											"originalRequest": {
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"toner_id\": \"7ae8fb09-1282-4f82-b078-c3e5d4a83dba\",\n  \"quantity\": 2\n}\n",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "localhost:8000/api/v1/movements/toner",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"movements",
+														"toner"
+													]
+												}
+											},
+											"status": "Created",
+											"code": 201,
+											"_postman_previewlanguage": "plain",
+											"header": [
+												{
+													"key": "content-length",
+													"value": "0"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 02:15:40 GMT"
+												}
+											],
+											"cookie": [],
+											"body": null
+										}
+									]
+								},
+								{
+									"name": "create_drum_movement",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"drum_id\": \"<drum_id>\",\n  \"quantity\": <quantity_changed>\n}\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "localhost:8000/api/v1/movements/drum",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"movements",
+												"drum"
+											]
+										},
+										"description": "Creates a new drum movement."
+									},
+									"response": [
+										{
+											"name": "create_drum_movement",
+											"originalRequest": {
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"drum_id\": \"93148194-10bb-47aa-a699-f2b5d4634b7b\",\n  \"quantity\": -1\n}\n",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "localhost:8000/api/v1/movements/drum",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"movements",
+														"drum"
+													]
+												}
+											},
+											"status": "Created",
+											"code": 201,
+											"_postman_previewlanguage": "plain",
+											"header": [
+												{
+													"key": "content-length",
+													"value": "0"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 02:16:37 GMT"
+												}
+											],
+											"cookie": [],
+											"body": null
+										}
+									]
+								},
+								{
+									"name": "delete_movement",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"id\": \"<printer_id>\"\n}\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "localhost:8000/api/v1/movements",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"movements"
+											]
+										},
+										"description": "Deletes a movement by its ID."
+									},
+									"response": [
+										{
+											"name": "delete_movement",
+											"originalRequest": {
+												"method": "DELETE",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"id\": \"68faff15-5bed-4d28-89f3-cc3a6c565d60\"\n}\n",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "localhost:8000/api/v1/movements",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"movements"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "plain",
+											"header": [
+												{
+													"key": "content-length",
+													"value": "0"
+												},
+												{
+													"key": "date",
+													"value": "Sat, 14 Sep 2024 02:22:57 GMT"
+												}
+											],
+											"cookie": [],
+											"body": null
+										}
+									]
+								}
+							],
+							"description": "Endpoints for the CRUD of movements."
 						},
 						{
 							"name": "status",
@@ -690,7 +2293,46 @@
 								},
 								"description": "API status endpoint, contains database information and checks if the connection is healthy."
 							},
-							"response": []
+							"response": [
+								{
+									"name": "status",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "localhost:8000/api/v1/status",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"status"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "content-type",
+											"value": "application/json"
+										},
+										{
+											"key": "content-length",
+											"value": "139"
+										},
+										{
+											"key": "date",
+											"value": "Sat, 14 Sep 2024 01:50:12 GMT"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"updated_at\": \"2024-09-14T01:50:12.781175214Z\",\n    \"dependencies\": {\n        \"database\": {\n            \"version\": \"16.0\",\n            \"max_connections\": 100,\n            \"opened_connections\": 2\n        }\n    }\n}"
+								}
+							]
 						}
 					],
 					"description": "API versioning."
