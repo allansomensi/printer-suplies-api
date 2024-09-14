@@ -150,9 +150,9 @@ pub async fn update_printer(
     let printer_id = request.id;
     let new_name = request.name;
     let new_model = request.model;
-    let new_brand = request.brand;
-    let new_toner = request.toner;
-    let new_drum = request.drum;
+    let new_brand = Uuid::from_str(request.brand.as_str()).unwrap();
+    let new_toner = Uuid::from_str(request.toner.as_str()).unwrap();
+    let new_drum = Uuid::from_str(request.drum.as_str()).unwrap();
 
     // ID not found
     match sqlx::query(r#"SELECT id FROM printers WHERE id = $1"#)
