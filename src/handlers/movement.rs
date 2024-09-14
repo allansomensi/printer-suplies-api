@@ -120,17 +120,30 @@ pub async fn create_toner_movement(
     Json(request): Json<CreateTonerMovementRequest>,
 ) -> impl IntoResponse {
     match request.toner_id {
-        Some(_) => {
-            let printer_id = sqlx::query("SELECT id FROM printers WHERE toner = $1")
-                .bind(&request.toner_id)
+        Some(toner_id) => {
+            let printer_id: Uuid = match sqlx::query(r#"SELECT id FROM printers WHERE toner = $1;"#)
+                .bind(&toner_id)
                 .fetch_one(&state.db)
-                .await;
+                .await
+                .unwrap()
+                .try_get("id")
+            {
+                Ok(id) => id,
+                Err(e) => {
+                    error!("Error creating movement: {}", e);
+                    return StatusCode::INTERNAL_SERVER_ERROR;
+                }
+            };
 
-            let printer_id: Uuid = printer_id.unwrap().try_get("id").unwrap();
+            let new_movement = Movement::new(printer_id, Some(toner_id), None, request.quantity);
 
-            let new_movement = Movement::new(printer_id, request.toner_id, None, request.quantity);
+            // Empty quantity
+            if new_movement.quantity == 0 {
+                error!("Movement quantity cannot be zero.");
+                return StatusCode::BAD_REQUEST;
+            }
 
-            sqlx::query(
+            match sqlx::query(
                 r#"
                 INSERT INTO movements (id, printer_id, toner_id, drum_id, quantity, created_at)
                 VALUES ($1, $2, $3, $4, $5, $6)
@@ -144,18 +157,27 @@ pub async fn create_toner_movement(
             .bind(Utc::now())
             .execute(&state.db)
             .await
-            .unwrap();
+            {
+                Ok(_) => {
+                    sqlx::query("UPDATE toners SET stock = stock + $1 WHERE id = $2")
+                        .bind(request.quantity)
+                        .bind(toner_id)
+                        .execute(&state.db)
+                        .await
+                        .unwrap();
 
-            sqlx::query("UPDATE toners SET stock = stock + $1 WHERE id = $2")
-                .bind(request.quantity)
-                .bind(request.toner_id)
-                .execute(&state.db)
-                .await
-                .unwrap();
-
-            Ok(StatusCode::CREATED)
+                    StatusCode::CREATED
+                }
+                Err(e) => {
+                    error!("Error creating movement: {}", e);
+                    StatusCode::INTERNAL_SERVER_ERROR
+                }
+            }
         }
-        None => Err(StatusCode::INTERNAL_SERVER_ERROR),
+        None => {
+            error!("Toner ID not found.");
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
     }
 }
 
@@ -164,17 +186,30 @@ pub async fn create_drum_movement(
     Json(request): Json<CreateDrumMovementRequest>,
 ) -> impl IntoResponse {
     match request.drum_id {
-        Some(_) => {
-            let printer_id = sqlx::query("SELECT id FROM printers WHERE drum = $1")
-                .bind(&request.drum_id)
+        Some(drum_id) => {
+            let printer_id: Uuid = match sqlx::query(r#"SELECT id FROM printers WHERE drum = $1;"#)
+                .bind(&drum_id)
                 .fetch_one(&state.db)
-                .await;
+                .await
+                .unwrap()
+                .try_get("id")
+            {
+                Ok(id) => id,
+                Err(e) => {
+                    error!("Error creating movement: {}", e);
+                    return StatusCode::INTERNAL_SERVER_ERROR;
+                }
+            };
 
-            let printer_id: Uuid = printer_id.unwrap().try_get("id").unwrap();
+            let new_movement = Movement::new(printer_id, None, Some(drum_id), request.quantity);
 
-            let new_movement = Movement::new(printer_id, None, request.drum_id, request.quantity);
+            // Empty quantity
+            if new_movement.quantity == 0 {
+                error!("Movement quantity cannot be zero.");
+                return StatusCode::BAD_REQUEST;
+            }
 
-            sqlx::query(
+            match sqlx::query(
                 r#"
                 INSERT INTO movements (id, printer_id, toner_id, drum_id, quantity, created_at)
                 VALUES ($1, $2, $3, $4, $5, $6)
@@ -188,18 +223,27 @@ pub async fn create_drum_movement(
             .bind(Utc::now())
             .execute(&state.db)
             .await
-            .unwrap();
+            {
+                Ok(_) => {
+                    sqlx::query("UPDATE drums SET stock = stock + $1 WHERE id = $2")
+                        .bind(request.quantity)
+                        .bind(drum_id)
+                        .execute(&state.db)
+                        .await
+                        .unwrap();
 
-            sqlx::query("UPDATE drums SET stock = stock + $1 WHERE id = $2")
-                .bind(request.quantity)
-                .bind(request.drum_id)
-                .execute(&state.db)
-                .await
-                .unwrap();
-
-            Ok(StatusCode::CREATED)
+                    StatusCode::CREATED
+                }
+                Err(e) => {
+                    error!("Error creating movement: {}", e);
+                    StatusCode::INTERNAL_SERVER_ERROR
+                }
+            }
         }
-        None => Err(StatusCode::INTERNAL_SERVER_ERROR),
+        None => {
+            error!("Drum ID not found.");
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
     }
 }
 
