@@ -12,9 +12,45 @@ use crate::models::{
     movement::{CreateDrumMovementRequest, CreateTonerMovementRequest, Movement},
 };
 
-pub async fn count_movements(State(state): State<Arc<AppState>>) -> Json<i32> {
+pub async fn count_all_movements(State(state): State<Arc<AppState>>) -> Json<i32> {
     let movement_count: Result<(i32,), sqlx::Error> =
         sqlx::query_as(r#"SELECT COUNT(*)::int FROM movements;"#)
+            .fetch_one(&state.db)
+            .await;
+
+    match movement_count {
+        Ok((count,)) => {
+            info!("Successfully retrieved movement count: {}", count);
+            Json(count)
+        }
+        Err(e) => {
+            error!("Error retrieving movement count: {e}");
+            Json(0)
+        }
+    }
+}
+
+pub async fn count_toner_movements(State(state): State<Arc<AppState>>) -> Json<i32> {
+    let movement_count: Result<(i32,), sqlx::Error> =
+        sqlx::query_as(r#"SELECT COUNT(*)::int FROM movements WHERE toner_id IS NOT NULL;"#)
+            .fetch_one(&state.db)
+            .await;
+
+    match movement_count {
+        Ok((count,)) => {
+            info!("Successfully retrieved movement count: {}", count);
+            Json(count)
+        }
+        Err(e) => {
+            error!("Error retrieving movement count: {e}");
+            Json(0)
+        }
+    }
+}
+
+pub async fn count_drum_movements(State(state): State<Arc<AppState>>) -> Json<i32> {
+    let movement_count: Result<(i32,), sqlx::Error> =
+        sqlx::query_as(r#"SELECT COUNT(*)::int FROM movements WHERE drum_id IS NOT NULL;"#)
             .fetch_one(&state.db)
             .await;
 
