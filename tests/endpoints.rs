@@ -396,4 +396,64 @@ pub mod tests {
 
         assert_eq!(response.status(), StatusCode::NOT_FOUND);
     }
+
+    // Movement
+
+    // Count
+
+    #[tokio::test]
+    pub async fn count_all_movements_endpoint() {
+        let endpoint = format!("http://localhost:8000/api/v1/movement-count");
+        let client = reqwest::Client::new();
+        let response = client.get(endpoint).send().await.unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    pub async fn count_toner_movements_endpoint() {
+        let endpoint = format!("http://localhost:8000/api/v1/movement-count/toner");
+        let client = reqwest::Client::new();
+        let response = client.get(endpoint).send().await.unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    pub async fn count_drum_movements_endpoint() {
+        let endpoint = format!("http://localhost:8000/api/v1/movement-count/drum");
+        let client = reqwest::Client::new();
+        let response = client.get(endpoint).send().await.unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    // Show
+
+    #[tokio::test]
+    pub async fn show_all_movements_endpoint() {
+        let endpoint = format!("http://localhost:8000/api/v1/movements");
+        let client = reqwest::Client::new();
+        let response = client.get(endpoint).send().await.unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    pub async fn show_toner_movements_endpoint() {
+        let endpoint = format!("http://localhost:8000/api/v1/movements/toner");
+        let client = reqwest::Client::new();
+        let response = client.get(endpoint).send().await.unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    pub async fn show_drum_movements_endpoint() {
+        let endpoint = format!("http://localhost:8000/api/v1/movements/drum");
+        let client = reqwest::Client::new();
+        let response = client.get(endpoint).send().await.unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+    }
 }
