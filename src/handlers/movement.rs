@@ -4,7 +4,11 @@ use sqlx::Row;
 use std::sync::Arc;
 use tracing::{error, info};
 
-use axum::{extract::State, response::IntoResponse, Json};
+use axum::{
+    extract::{Path, State},
+    response::IntoResponse,
+    Json,
+};
 use uuid::Uuid;
 
 use crate::models::{
@@ -63,6 +67,30 @@ pub async fn count_drum_movements(State(state): State<Arc<AppState>>) -> Json<i3
         Err(e) => {
             error!("Error retrieving movement count: {e}");
             Json(0)
+        }
+    }
+}
+
+pub async fn search_movement(
+    Path(id): Path<Uuid>,
+    State(state): State<Arc<AppState>>,
+) -> impl IntoResponse {
+    match sqlx::query_as::<_, Movement>("SELECT * FROM movements WHERE id = $1")
+        .bind(id)
+        .fetch_optional(&state.db)
+        .await
+    {
+        Ok(Some(movement)) => {
+            info!("Movement found: {id}");
+            (StatusCode::OK, Json(Some(movement)))
+        }
+        Ok(None) => {
+            error!("No movement found.");
+            (StatusCode::NOT_FOUND, Json(None))
+        }
+        Err(e) => {
+            error!("Error retrieving movement: {e}");
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(None))
         }
     }
 }

@@ -64,6 +64,7 @@ pub fn routes(state: Arc<AppState>) -> Router {
                     get(movement::count_toner_movements),
                 )
                 .route("/movement-count/drum", get(movement::count_drum_movements))
+                .route("/movements/:id", get(movement::search_movement))
                 .route(
                     "/movements",
                     get(movement::show_all_movements).delete(movement::delete_movement),
