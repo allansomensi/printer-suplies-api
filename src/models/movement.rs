@@ -42,3 +42,8 @@ pub struct CreateDrumMovementRequest {
     pub drum_id: Option<Uuid>,
     pub quantity: i32,
 }
+
+#[derive(Deserialize, Serialize)]
+pub struct DeleteMovementRequest {
+    pub id: Uuid,
+}

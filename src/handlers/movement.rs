@@ -9,7 +9,9 @@ use uuid::Uuid;
 
 use crate::models::{
     database::AppState,
-    movement::{CreateDrumMovementRequest, CreateTonerMovementRequest, Movement},
+    movement::{
+        CreateDrumMovementRequest, CreateTonerMovementRequest, DeleteMovementRequest, Movement,
+    },
 };
 
 pub async fn count_all_movements(State(state): State<Arc<AppState>>) -> Json<i32> {
@@ -199,5 +201,41 @@ pub async fn create_drum_movement(
             Ok(StatusCode::CREATED)
         }
         None => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
+}
+
+pub async fn delete_movement(
+    State(state): State<Arc<AppState>>,
+    Json(request): Json<DeleteMovementRequest>,
+) -> impl IntoResponse {
+    match sqlx::query(r#"SELECT id FROM movements WHERE id = $1"#)
+        .bind(request.id)
+        .fetch_optional(&state.db)
+        .await
+    {
+        Ok(Some(_)) => {
+            match sqlx::query(r#"DELETE FROM movements WHERE id = $1"#)
+                .bind(request.id)
+                .execute(&state.db)
+                .await
+            {
+                Ok(_) => {
+                    info!("Movement deleted! ID: {}", &request.id);
+                    StatusCode::OK
+                }
+                Err(e) => {
+                    error!("Error deleting movement: {}", e);
+                    StatusCode::INTERNAL_SERVER_ERROR
+                }
+            }
+        }
+        Ok(None) => {
+            error!("Movement ID not found.");
+            StatusCode::NOT_FOUND
+        }
+        Err(e) => {
+            error!("Error deleting movement: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
     }
 }
