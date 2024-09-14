@@ -456,4 +456,25 @@ pub mod tests {
 
         assert_eq!(response.status(), StatusCode::OK);
     }
+
+    #[tokio::test]
+    async fn delete_movement_endpoint() {
+        let body = r#"{
+        "id": "4340c4a2-eac5-4b51-9baa-40b498605a8c"
+    }"#;
+
+        let endpoint = "http://localhost:8000/api/v1/movements";
+
+        let client = reqwest::Client::new();
+
+        let response = client
+            .delete(endpoint)
+            .header("Content-Type", "application/json")
+            .body(body)
+            .send()
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
+    }
 }
