@@ -11,7 +11,8 @@ use uuid::Uuid;
 
 use crate::models::{
     database::AppState,
-    supplies::drum::{CreateDrumRequest, DeleteDrumRequest, Drum, UpdateDrumRequest},
+    supplies::drum::{CreateDrumRequest, Drum, UpdateDrumRequest},
+    DeleteRequest,
 };
 
 pub async fn count_drums(State(state): State<Arc<AppState>>) -> Json<i32> {
@@ -211,7 +212,7 @@ pub async fn update_drum(
 
 pub async fn delete_drum(
     State(state): State<Arc<AppState>>,
-    Json(request): Json<DeleteDrumRequest>,
+    Json(request): Json<DeleteRequest>,
 ) -> impl IntoResponse {
     match sqlx::query(r#"SELECT id FROM drums WHERE id = $1"#)
         .bind(request.id)

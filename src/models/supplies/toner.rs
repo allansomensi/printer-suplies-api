@@ -29,8 +29,3 @@ pub struct UpdateTonerRequest {
     pub id: Uuid,
     pub name: String,
 }
-
-#[derive(Deserialize, Serialize)]
-pub struct DeleteTonerRequest {
-    pub id: Uuid,
-}

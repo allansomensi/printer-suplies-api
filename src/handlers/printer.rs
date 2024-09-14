@@ -11,7 +11,8 @@ use uuid::Uuid;
 
 use crate::models::{
     database::AppState,
-    printer::{CreatePrinterRequest, DeletePrinterRequest, Printer, UpdatePrinterRequest},
+    printer::{CreatePrinterRequest, Printer, UpdatePrinterRequest},
+    DeleteRequest,
 };
 
 pub async fn count_printers(State(state): State<Arc<AppState>>) -> Json<i32> {
@@ -233,7 +234,7 @@ pub async fn update_printer(
 
 pub async fn delete_printer(
     State(state): State<Arc<AppState>>,
-    Json(request): Json<DeletePrinterRequest>,
+    Json(request): Json<DeleteRequest>,
 ) -> impl IntoResponse {
     match sqlx::query(r#"SELECT id FROM printers WHERE id = $1"#)
         .bind(request.id)

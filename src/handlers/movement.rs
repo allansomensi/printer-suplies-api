@@ -9,9 +9,8 @@ use uuid::Uuid;
 
 use crate::models::{
     database::AppState,
-    movement::{
-        CreateDrumMovementRequest, CreateTonerMovementRequest, DeleteMovementRequest, Movement,
-    },
+    movement::{CreateDrumMovementRequest, CreateTonerMovementRequest, Movement},
+    DeleteRequest,
 };
 
 pub async fn count_all_movements(State(state): State<Arc<AppState>>) -> Json<i32> {
@@ -206,7 +205,7 @@ pub async fn create_drum_movement(
 
 pub async fn delete_movement(
     State(state): State<Arc<AppState>>,
-    Json(request): Json<DeleteMovementRequest>,
+    Json(request): Json<DeleteRequest>,
 ) -> impl IntoResponse {
     match sqlx::query(r#"SELECT id FROM movements WHERE id = $1"#)
         .bind(request.id)

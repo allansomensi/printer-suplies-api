@@ -43,8 +43,3 @@ pub struct UpdatePrinterRequest {
     pub toner: String,
     pub drum: String,
 }
-
-#[derive(Deserialize, Serialize)]
-pub struct DeletePrinterRequest {
-    pub id: Uuid,
-}

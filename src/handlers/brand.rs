@@ -10,8 +10,9 @@ use tracing::{error, info};
 use uuid::Uuid;
 
 use crate::models::{
-    brand::{Brand, CreateBrandRequest, DeleteBrandRequest, UpdateBrandRequest},
+    brand::{Brand, CreateBrandRequest, UpdateBrandRequest},
     database::AppState,
+    DeleteRequest,
 };
 
 pub async fn count_brands(State(state): State<Arc<AppState>>) -> Json<i32> {
@@ -211,7 +212,7 @@ pub async fn update_brand(
 
 pub async fn delete_brand(
     State(state): State<Arc<AppState>>,
-    Json(request): Json<DeleteBrandRequest>,
+    Json(request): Json<DeleteRequest>,
 ) -> impl IntoResponse {
     match sqlx::query(r#"SELECT id FROM brands WHERE id = $1"#)
         .bind(request.id)

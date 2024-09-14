@@ -29,8 +29,3 @@ pub struct UpdateDrumRequest {
     pub id: Uuid,
     pub name: String,
 }
-
-#[derive(Deserialize, Serialize)]
-pub struct DeleteDrumRequest {
-    pub id: Uuid,
-}

@@ -11,7 +11,8 @@ use uuid::Uuid;
 
 use crate::models::{
     database::AppState,
-    supplies::toner::{CreateTonerRequest, DeleteTonerRequest, Toner, UpdateTonerRequest},
+    supplies::toner::{CreateTonerRequest, Toner, UpdateTonerRequest},
+    DeleteRequest,
 };
 
 pub async fn count_toners(State(state): State<Arc<AppState>>) -> Json<i32> {
@@ -210,7 +211,7 @@ pub async fn update_toner(
 
 pub async fn delete_toner(
     State(state): State<Arc<AppState>>,
-    Json(request): Json<DeleteTonerRequest>,
+    Json(request): Json<DeleteRequest>,
 ) -> impl IntoResponse {
     match sqlx::query(r#"SELECT id FROM toners WHERE id = $1"#)
         .bind(request.id)
