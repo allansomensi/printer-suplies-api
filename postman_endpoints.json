@@ -2260,6 +2260,80 @@
 									]
 								},
 								{
+									"name": "update_movement",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"id\": \"<movement_id>\",\n    \"printer_id\": \"<new_printer_id>\",\n    \"toner_id\": \"<new_toner_id (OPTIONAL)>\",\n    \"drum_id\": \"<new_drum_id (OPTIONAL)>\",\n    \"quantity\": <new_quantity>\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "localhost:8000/api/v1/movements",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"v1",
+												"movements"
+											]
+										},
+										"description": "Updates an existing movement."
+									},
+									"response": [
+										{
+											"name": "update_movement",
+											"originalRequest": {
+												"method": "PUT",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"id\": \"efc239f4-b4d6-4394-8b77-90284307adfd\",\n    \"printer_id\": \"dae37c1e-6f6b-4120-bac2-7ee79de24b5b\",\n    \"drum_id\": \"84ebda39-7920-41df-b427-4ddf74ef82b8\",\n    \"quantity\": 9\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "localhost:8000/api/v1/movements",
+													"host": [
+														"localhost"
+													],
+													"port": "8000",
+													"path": [
+														"api",
+														"v1",
+														"movements"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "plain",
+											"header": [
+												{
+													"key": "content-length",
+													"value": "0"
+												},
+												{
+													"key": "date",
+													"value": "Mon, 16 Sep 2024 02:55:25 GMT"
+												}
+											],
+											"cookie": [],
+											"body": null
+										}
+									]
+								},
+								{
 									"name": "delete_movement",
 									"request": {
 										"method": "DELETE",
