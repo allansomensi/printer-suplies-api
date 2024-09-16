@@ -13,7 +13,9 @@ use uuid::Uuid;
 
 use crate::models::{
     database::AppState,
-    movement::{CreateDrumMovementRequest, CreateTonerMovementRequest, Movement},
+    movement::{
+        CreateDrumMovementRequest, CreateTonerMovementRequest, Movement, UpdateMovementRequest,
+    },
     DeleteRequest,
 };
 
@@ -270,6 +272,66 @@ pub async fn create_drum_movement(
         }
         None => {
             error!("Drum ID not found.");
+            StatusCode::NOT_FOUND
+        }
+    }
+}
+
+pub async fn update_movement(
+    State(state): State<Arc<AppState>>,
+    Json(request): Json<UpdateMovementRequest>,
+) -> impl IntoResponse {
+    let movement_id = request.id;
+    let new_printer_id = request.printer_id;
+    let new_toner_id = request.toner_id;
+    let new_drum_id = request.drum_id;
+    let new_quantity = request.quantity;
+
+    // One of the two must exist
+    if new_toner_id.is_none() && new_drum_id.is_none() {
+        error!("Either toner_id or drum_id must be provided.");
+        return StatusCode::BAD_REQUEST;
+    }
+
+    // Not found
+    match sqlx::query(r#"SELECT id FROM movements WHERE id = $1;"#)
+        .bind(movement_id)
+        .fetch_optional(&state.db)
+        .await
+    {
+        Ok(Some(_)) => {
+            match sqlx::query(
+                r#"UPDATE movements 
+                    SET printer_id = $1,
+                        toner_id = $2,
+                        drum_id = $3,
+                        quantity = $4
+                    WHERE id = $5;"#,
+            )
+            .bind(&new_printer_id)
+            .bind(new_toner_id) // Optional
+            .bind(new_drum_id) // Optional
+            .bind(new_quantity)
+            .bind(movement_id)
+            .execute(&state.db)
+            .await
+            {
+                Ok(_) => {
+                    info!("Movement updated! ID: {}", &movement_id);
+                    StatusCode::OK
+                }
+                Err(e) => {
+                    error!("Error updating movement: {}", e);
+                    StatusCode::INTERNAL_SERVER_ERROR
+                }
+            }
+        }
+        Ok(None) => {
+            error!("Movement ID not found.");
+            StatusCode::NOT_FOUND
+        }
+        Err(e) => {
+            error!("Error updating movement: {}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         }
     }

@@ -42,3 +42,12 @@ pub struct CreateDrumMovementRequest {
     pub drum_id: Option<Uuid>,
     pub quantity: i32,
 }
+
+#[derive(Deserialize, Serialize, FromRow)]
+pub struct UpdateMovementRequest {
+    pub id: Uuid,
+    pub printer_id: Uuid,
+    pub toner_id: Option<Uuid>,
+    pub drum_id: Option<Uuid>,
+    pub quantity: i32,
+}
