@@ -506,6 +506,31 @@ pub mod tests {
     }
 
     #[tokio::test]
+    async fn update_movement_endpoint() {
+        setup();
+        let body = r#"{
+            "id": "4340c4a2-eac5-4b51-9baa-40b398605a8c",
+            "printer_id": "4340c4a2-eac5-4b51-9baa-40b398605a8c",
+            "toner_id": "4340c4a2-eac5-4b51-9baa-40b498605a8c",
+            "quantity": 7
+        }"#;
+
+        let endpoint = format!("http://{}/api/v1/movements", var("HOST").unwrap());
+
+        let client = reqwest::Client::new();
+
+        let response = client
+            .put(endpoint)
+            .header("Content-Type", "application/json")
+            .body(body)
+            .send()
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
     async fn delete_movement_endpoint() {
         setup();
         let body = r#"{
