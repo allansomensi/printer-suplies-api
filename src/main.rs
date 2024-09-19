@@ -2,6 +2,7 @@ use tracing::{error, info};
 
 mod config;
 mod handlers;
+mod logger;
 mod models;
 mod router;
 mod server;
@@ -10,6 +11,7 @@ mod server;
 async fn main() {
     println!("🌟 Printer Supplies API 🌟");
 
+    logger::init();
     match config::Config::init() {
         Ok(_) => {
             info!("✅ Configurações carregadas!");
