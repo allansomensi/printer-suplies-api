@@ -76,7 +76,7 @@ pub async fn show_drums(State(state): State<Arc<AppState>>) -> Json<Vec<Drum>> {
 pub async fn create_drum(
     State(state): State<Arc<AppState>>,
     Json(request): Json<CreateDrumRequest>,
-) -> impl IntoResponse {
+) -> (StatusCode, impl IntoResponse) {
     let new_drum = Drum::new(&request.name);
 
     // Check duplicate
@@ -87,25 +87,31 @@ pub async fn create_drum(
     {
         Ok(Some(_)) => {
             error!("Drum '{}' already exists.", &new_drum.name);
-            StatusCode::CONFLICT
+            (StatusCode::CONFLICT, Err(Json("Drum already exists.")))
         }
         Ok(None) => {
             // Name is empty
             if new_drum.name.is_empty() {
                 error!("Drum name cannot be empty.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Drum name cannot be empty.")),
+                );
             }
 
             // Name too short
             if new_drum.name.len() < 4 {
                 error!("Drum name is too short.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Drum name is too short.")),
+                );
             }
 
             // Name too long
             if new_drum.name.len() > 20 {
                 error!("Drum name is too long.");
-                return StatusCode::BAD_REQUEST;
+                return (StatusCode::BAD_REQUEST, Err(Json("Drum name is too long.")));
             }
 
             match sqlx::query(
@@ -121,22 +127,28 @@ pub async fn create_drum(
             {
                 Ok(_) => {
                     info!("Drum created! ID: {}", &new_drum.id);
-                    StatusCode::CREATED
+                    (StatusCode::CREATED, Ok(Json(new_drum.id)))
                 }
                 Err(e) => {
                     error!("Error creating drum: {}", e);
-                    StatusCode::INTERNAL_SERVER_ERROR
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Err(Json("Error creating drum.")),
+                    )
                 }
             }
         }
-        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        Err(_) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Err(Json("Error creating drum.")),
+        ),
     }
 }
 
 pub async fn update_drum(
     State(state): State<Arc<AppState>>,
     Json(request): Json<UpdateDrumRequest>,
-) -> impl IntoResponse {
+) -> (StatusCode, impl IntoResponse) {
     let drum_id = request.id;
     let new_name = request.name;
 
@@ -150,19 +162,25 @@ pub async fn update_drum(
             // Name is empty
             if new_name.is_empty() {
                 error!("Drum name cannot be empty.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Drum name cannot be empty.")),
+                );
             }
 
             // Name too short
             if new_name.len() < 4 {
                 error!("Drum name is too short.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Drum name is too short.")),
+                );
             }
 
             // Name too long
             if new_name.len() > 20 {
                 error!("Drum name is too long.");
-                return StatusCode::BAD_REQUEST;
+                return (StatusCode::BAD_REQUEST, Err(Json("Drum name is too long.")));
             }
 
             // Check duplicate
@@ -174,7 +192,7 @@ pub async fn update_drum(
             {
                 Ok(Some(_)) => {
                     error!("Drum name already exists.");
-                    StatusCode::BAD_REQUEST
+                    (StatusCode::CONFLICT, Err(Json("Drum already exists.")))
                 }
                 Ok(None) => {
                     match sqlx::query(r#"UPDATE drums SET name = $1 WHERE id = $2;"#)
@@ -185,27 +203,36 @@ pub async fn update_drum(
                     {
                         Ok(_) => {
                             info!("Drum updated! ID: {}", &drum_id);
-                            StatusCode::OK
+                            (StatusCode::OK, Ok(Json(drum_id)))
                         }
                         Err(e) => {
                             error!("Error updating drum: {}", e);
-                            StatusCode::INTERNAL_SERVER_ERROR
+                            (
+                                StatusCode::INTERNAL_SERVER_ERROR,
+                                Err(Json("Error updating drum.")),
+                            )
                         }
                     }
                 }
                 Err(e) => {
                     error!("Error checking for duplicate drum name: {}", e);
-                    StatusCode::INTERNAL_SERVER_ERROR
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Err(Json("Error checking for duplicated drum name.")),
+                    )
                 }
             }
         }
         Ok(None) => {
             error!("Drum ID not found.");
-            StatusCode::NOT_FOUND
+            (StatusCode::NOT_FOUND, Err(Json("Drum ID not found.")))
         }
         Err(e) => {
             error!("Error fetching drum by ID: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Err(Json("Error fetching drum by ID")),
+            )
         }
     }
 }
@@ -227,21 +254,27 @@ pub async fn delete_drum(
             {
                 Ok(_) => {
                     info!("Drum deleted! ID: {}", &request.id);
-                    StatusCode::OK
+                    (StatusCode::OK, Ok(Json("Drum deleted!")))
                 }
                 Err(e) => {
                     error!("Error deleting drum: {}", e);
-                    StatusCode::INTERNAL_SERVER_ERROR
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Ok(Json("Error deleting drum.")),
+                    )
                 }
             }
         }
         Ok(None) => {
             error!("Drum ID not found.");
-            StatusCode::NOT_FOUND
+            (StatusCode::NOT_FOUND, Err(Json("Drum ID not found")))
         }
         Err(e) => {
             error!("Error deleting drum: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Err(Json("Error deleting drum.")),
+            )
         }
     }
 }
