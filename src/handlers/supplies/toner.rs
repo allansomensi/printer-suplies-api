@@ -15,7 +15,7 @@ use crate::models::{
     DeleteRequest,
 };
 
-pub async fn count_toners(State(state): State<Arc<AppState>>) -> Json<i32> {
+pub async fn count_toners(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let toner_count: Result<(i32,), sqlx::Error> =
         sqlx::query_as(r#"SELECT COUNT(*)::int FROM toners;"#)
             .fetch_one(&state.db)
@@ -23,11 +23,14 @@ pub async fn count_toners(State(state): State<Arc<AppState>>) -> Json<i32> {
     match toner_count {
         Ok((count,)) => {
             info!("Successfully retrieved toner count: {}", count);
-            Json(count)
+            Ok(Json(count))
         }
         Err(e) => {
             error!("Error retrieving toner count: {e}");
-            Json(0)
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Error retrieving toner count."),
+            ))
         }
     }
 }
@@ -56,18 +59,21 @@ pub async fn search_toner(
     }
 }
 
-pub async fn show_toners(State(state): State<Arc<AppState>>) -> Json<Vec<Toner>> {
-    match sqlx::query_as(r#"SELECT * FROM toners;"#)
+pub async fn show_toners(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+    let toners: Result<Vec<Toner>, sqlx::Error> = sqlx::query_as(r#"SELECT * FROM toners;"#)
         .fetch_all(&state.db)
-        .await
-    {
+        .await;
+    match toners {
         Ok(toners) => {
             info!("Toners listed successfully");
-            Json(toners)
+            Ok(Json(toners))
         }
         Err(e) => {
             error!("Error listing toners: {e}");
-            Json(Vec::new())
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Error listing toners."),
+            ))
         }
     }
 }
@@ -86,25 +92,34 @@ pub async fn create_toner(
     {
         Ok(Some(_)) => {
             error!("Toner '{}' already exists.", &new_toner.name);
-            StatusCode::CONFLICT
+            return (StatusCode::CONFLICT, Err(Json("Toner already exists.")));
         }
         Ok(None) => {
             // Name is empty
             if new_toner.name.is_empty() {
                 error!("Toner name cannot be empty.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Toner name cannot be empty.")),
+                );
             }
 
             // Name too short
             if new_toner.name.len() < 4 {
                 error!("Toner name is too short.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Toner name is too short.")),
+                );
             }
 
             // Name too long
             if new_toner.name.len() > 20 {
                 error!("Toner name is too long.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Toner name is too long.")),
+                );
             }
 
             match sqlx::query(r#"INSERT INTO toners (id, name) VALUES ($1, $2);"#)
@@ -115,15 +130,21 @@ pub async fn create_toner(
             {
                 Ok(_) => {
                     info!("Toner created! ID: {}", &new_toner.id);
-                    StatusCode::CREATED
+                    (StatusCode::CREATED, Ok(Json(new_toner.id)))
                 }
                 Err(e) => {
                     error!("Error creating toner: {}", e);
-                    StatusCode::INTERNAL_SERVER_ERROR
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Err(Json("Error creating toner.")),
+                    )
                 }
             }
         }
-        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        Err(_) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Err(Json("Error creating toner.")),
+        ),
     }
 }
 
