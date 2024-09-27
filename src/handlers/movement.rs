@@ -181,8 +181,11 @@ pub async fn create_toner_movement(
             {
                 Ok(id) => id,
                 Err(e) => {
-                    error!("Error creating movement: {}", e);
-                    return StatusCode::INTERNAL_SERVER_ERROR;
+                    error!("Error creating toner movement: {}", e);
+                    return (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Err(Json("Error creating toner movement.")),
+                    );
                 }
             };
 
@@ -191,7 +194,10 @@ pub async fn create_toner_movement(
             // Empty quantity
             if new_movement.quantity == 0 {
                 error!("Movement quantity cannot be zero.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Movement quantity cannot be zero.")),
+                );
             }
 
             match sqlx::query(
@@ -217,17 +223,20 @@ pub async fn create_toner_movement(
                         .await
                         .unwrap();
 
-                    StatusCode::CREATED
+                    (StatusCode::CREATED, Ok(Json(new_movement.id)))
                 }
                 Err(e) => {
-                    error!("Error creating movement: {}", e);
-                    StatusCode::INTERNAL_SERVER_ERROR
+                    error!("Error creating toner movement: {}", e);
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Err(Json("Error creating toner movement.")),
+                    )
                 }
             }
         }
         None => {
             error!("Toner ID not found.");
-            StatusCode::INTERNAL_SERVER_ERROR
+            (StatusCode::NOT_FOUND, Err(Json("Toner ID not found.")))
         }
     }
 }
@@ -247,8 +256,11 @@ pub async fn create_drum_movement(
             {
                 Ok(id) => id,
                 Err(e) => {
-                    error!("Error creating movement: {}", e);
-                    return StatusCode::INTERNAL_SERVER_ERROR;
+                    error!("Error creating drum movement: {}", e);
+                    return (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Err(Json("Error creating drum movement.")),
+                    );
                 }
             };
 
@@ -257,7 +269,10 @@ pub async fn create_drum_movement(
             // Empty quantity
             if new_movement.quantity == 0 {
                 error!("Movement quantity cannot be zero.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Movement quantity cannot be zero.")),
+                );
             }
 
             match sqlx::query(
@@ -283,17 +298,20 @@ pub async fn create_drum_movement(
                         .await
                         .unwrap();
 
-                    StatusCode::CREATED
+                    (StatusCode::CREATED, Ok(Json(new_movement.id)))
                 }
                 Err(e) => {
-                    error!("Error creating movement: {}", e);
-                    StatusCode::INTERNAL_SERVER_ERROR
+                    error!("Error creating drum movement: {}", e);
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Err(Json("Error creating drum movement.")),
+                    )
                 }
             }
         }
         None => {
             error!("Drum ID not found.");
-            StatusCode::NOT_FOUND
+            (StatusCode::NOT_FOUND, Err(Json("Drum ID not found.")))
         }
     }
 }
@@ -311,7 +329,10 @@ pub async fn update_movement(
     // One of the two must exist
     if new_toner_id.is_none() && new_drum_id.is_none() {
         error!("Either toner_id or drum_id must be provided.");
-        return StatusCode::BAD_REQUEST;
+        return (
+            StatusCode::BAD_REQUEST,
+            Err(Json("Either toner_id or drum_id must be provided.")),
+        );
     }
 
     // Not found
@@ -339,21 +360,27 @@ pub async fn update_movement(
             {
                 Ok(_) => {
                     info!("Movement updated! ID: {}", &movement_id);
-                    StatusCode::OK
+                    (StatusCode::OK, Ok(Json(movement_id)))
                 }
                 Err(e) => {
                     error!("Error updating movement: {}", e);
-                    StatusCode::INTERNAL_SERVER_ERROR
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Err(Json("Error updating movement.")),
+                    )
                 }
             }
         }
         Ok(None) => {
             error!("Movement ID not found.");
-            StatusCode::NOT_FOUND
+            (StatusCode::NOT_FOUND, Err(Json("Movement ID not found.")))
         }
         Err(e) => {
             error!("Error updating movement: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Err(Json("Error updating movement.")),
+            )
         }
     }
 }
@@ -375,21 +402,27 @@ pub async fn delete_movement(
             {
                 Ok(_) => {
                     info!("Movement deleted! ID: {}", &request.id);
-                    StatusCode::OK
+                    (StatusCode::OK, Ok(Json("Movement deleted!")))
                 }
                 Err(e) => {
                     error!("Error deleting movement: {}", e);
-                    StatusCode::INTERNAL_SERVER_ERROR
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Ok(Json("Error deleting movement.")),
+                    )
                 }
             }
         }
         Ok(None) => {
             error!("Movement ID not found.");
-            StatusCode::NOT_FOUND
+            (StatusCode::NOT_FOUND, Err(Json("Movement ID not found")))
         }
         Err(e) => {
             error!("Error deleting movement: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Err(Json("Error deleting movement.")),
+            )
         }
     }
 }
