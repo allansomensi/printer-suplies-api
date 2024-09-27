@@ -15,7 +15,7 @@ use crate::models::{
     DeleteRequest,
 };
 
-pub async fn count_drums(State(state): State<Arc<AppState>>) -> Json<i32> {
+pub async fn count_drums(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let drum_count: Result<(i32,), sqlx::Error> =
         sqlx::query_as(r#"SELECT COUNT(*)::int FROM drums;"#)
             .fetch_one(&state.db)
@@ -24,11 +24,14 @@ pub async fn count_drums(State(state): State<Arc<AppState>>) -> Json<i32> {
     match drum_count {
         Ok((count,)) => {
             info!("Successfully retrieved drum count: {}", count);
-            Json(count)
+            Ok(Json(count))
         }
         Err(e) => {
             error!("Error retrieving drum count: {e}");
-            Json(0)
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Error retrieving drum count."),
+            ))
         }
     }
 }
@@ -57,18 +60,21 @@ pub async fn search_drum(
     }
 }
 
-pub async fn show_drums(State(state): State<Arc<AppState>>) -> Json<Vec<Drum>> {
-    match sqlx::query_as(r#"SELECT * FROM drums;"#)
+pub async fn show_drums(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+    let drums: Result<Vec<Drum>, sqlx::Error> = sqlx::query_as(r#"SELECT * FROM drums;"#)
         .fetch_all(&state.db)
-        .await
-    {
+        .await;
+    match drums {
         Ok(drums) => {
             info!("Drums listed successfully");
-            Json(drums)
+            Ok(Json(drums))
         }
         Err(e) => {
             error!("Error listing drums: {e}");
-            Json(Vec::new())
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Error listing drums."),
+            ))
         }
     }
 }
@@ -76,7 +82,7 @@ pub async fn show_drums(State(state): State<Arc<AppState>>) -> Json<Vec<Drum>> {
 pub async fn create_drum(
     State(state): State<Arc<AppState>>,
     Json(request): Json<CreateDrumRequest>,
-) -> (StatusCode, impl IntoResponse) {
+) -> impl IntoResponse {
     let new_drum = Drum::new(&request.name);
 
     // Check duplicate
@@ -148,7 +154,7 @@ pub async fn create_drum(
 pub async fn update_drum(
     State(state): State<Arc<AppState>>,
     Json(request): Json<UpdateDrumRequest>,
-) -> (StatusCode, impl IntoResponse) {
+) -> impl IntoResponse {
     let drum_id = request.id;
     let new_name = request.name;
 
