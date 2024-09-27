@@ -19,7 +19,7 @@ use crate::models::{
     DeleteRequest,
 };
 
-pub async fn count_all_movements(State(state): State<Arc<AppState>>) -> Json<i32> {
+pub async fn count_all_movements(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let movement_count: Result<(i32,), sqlx::Error> =
         sqlx::query_as(r#"SELECT COUNT(*)::int FROM movements;"#)
             .fetch_one(&state.db)
@@ -28,16 +28,19 @@ pub async fn count_all_movements(State(state): State<Arc<AppState>>) -> Json<i32
     match movement_count {
         Ok((count,)) => {
             info!("Successfully retrieved movement count: {}", count);
-            Json(count)
+            Ok((StatusCode::OK, Json(count)))
         }
         Err(e) => {
             error!("Error retrieving movement count: {e}");
-            Json(0)
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Error retrieving movement count."),
+            ))
         }
     }
 }
 
-pub async fn count_toner_movements(State(state): State<Arc<AppState>>) -> Json<i32> {
+pub async fn count_toner_movements(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let movement_count: Result<(i32,), sqlx::Error> =
         sqlx::query_as(r#"SELECT COUNT(*)::int FROM movements WHERE toner_id IS NOT NULL;"#)
             .fetch_one(&state.db)
@@ -46,16 +49,19 @@ pub async fn count_toner_movements(State(state): State<Arc<AppState>>) -> Json<i
     match movement_count {
         Ok((count,)) => {
             info!("Successfully retrieved movement count: {}", count);
-            Json(count)
+            Ok((StatusCode::OK, Json(count)))
         }
         Err(e) => {
-            error!("Error retrieving movement count: {e}");
-            Json(0)
+            error!("Error retrieving toner movement count: {e}");
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Error retrieving toner movement count."),
+            ))
         }
     }
 }
 
-pub async fn count_drum_movements(State(state): State<Arc<AppState>>) -> Json<i32> {
+pub async fn count_drum_movements(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let movement_count: Result<(i32,), sqlx::Error> =
         sqlx::query_as(r#"SELECT COUNT(*)::int FROM movements WHERE drum_id IS NOT NULL;"#)
             .fetch_one(&state.db)
@@ -64,11 +70,14 @@ pub async fn count_drum_movements(State(state): State<Arc<AppState>>) -> Json<i3
     match movement_count {
         Ok((count,)) => {
             info!("Successfully retrieved movement count: {}", count);
-            Json(count)
+            Ok((StatusCode::OK, Json(count)))
         }
         Err(e) => {
             error!("Error retrieving movement count: {e}");
-            Json(0)
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Error retrieving drum movement count."),
+            ))
         }
     }
 }
@@ -97,50 +106,62 @@ pub async fn search_movement(
     }
 }
 
-pub async fn show_all_movements(State(state): State<Arc<AppState>>) -> Json<Vec<Movement>> {
-    match sqlx::query_as(r#"SELECT * FROM movements"#)
-        .fetch_all(&state.db)
-        .await
-    {
+pub async fn show_all_movements(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+    let movements: Result<Vec<Movement>, sqlx::Error> =
+        sqlx::query_as(r#"SELECT * FROM movements"#)
+            .fetch_all(&state.db)
+            .await;
+    match movements {
         Ok(movements) => {
             info!("Movements listed successfully");
-            Json(movements)
+            Ok((StatusCode::OK, Json(movements)))
         }
         Err(e) => {
             error!("Error listing movements: {e}");
-            Json(Vec::new())
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Error listing movements."),
+            ))
         }
     }
 }
 
-pub async fn show_toner_movements(State(state): State<Arc<AppState>>) -> Json<Vec<Movement>> {
-    match sqlx::query_as(r#"SELECT * FROM movements WHERE toner_id IS NOT NULL;"#)
-        .fetch_all(&state.db)
-        .await
-    {
+pub async fn show_toner_movements(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+    let toner_movements: Result<Vec<Movement>, sqlx::Error> =
+        sqlx::query_as(r#"SELECT * FROM movements WHERE toner_id IS NOT NULL;"#)
+            .fetch_all(&state.db)
+            .await;
+    match toner_movements {
         Ok(movements) => {
             info!("Toner movements listed successfully");
-            Json(movements)
+            Ok((StatusCode::OK, Json(movements)))
         }
         Err(e) => {
             error!("Error listing toner movements: {e}");
-            Json(Vec::new())
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Error listing toner movements."),
+            ))
         }
     }
 }
 
-pub async fn show_drum_movements(State(state): State<Arc<AppState>>) -> Json<Vec<Movement>> {
-    match sqlx::query_as(r#"SELECT * FROM movements WHERE drum_id IS NOT NULL;"#)
-        .fetch_all(&state.db)
-        .await
-    {
+pub async fn show_drum_movements(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+    let drum_movements: Result<Vec<Movement>, sqlx::Error> =
+        sqlx::query_as(r#"SELECT * FROM movements WHERE drum_id IS NOT NULL;"#)
+            .fetch_all(&state.db)
+            .await;
+    match drum_movements {
         Ok(movements) => {
             info!("Drum movements listed successfully");
-            Json(movements)
+            Ok((StatusCode::OK, Json(movements)))
         }
         Err(e) => {
             error!("Error listing drum movements: {e}");
-            Json(Vec::new())
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Error listing toner movements."),
+            ))
         }
     }
 }
@@ -308,7 +329,7 @@ pub async fn update_movement(
                         quantity = $4
                     WHERE id = $5;"#,
             )
-            .bind(&new_printer_id)
+            .bind(new_printer_id)
             .bind(new_toner_id) // Optional
             .bind(new_drum_id) // Optional
             .bind(new_quantity)
