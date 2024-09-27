@@ -15,7 +15,7 @@ use crate::models::{
     DeleteRequest,
 };
 
-pub async fn count_printers(State(state): State<Arc<AppState>>) -> Json<i32> {
+pub async fn count_printers(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let printer_count: Result<(i32,), sqlx::Error> =
         sqlx::query_as(r#"SELECT COUNT(*)::int FROM printers;"#)
             .fetch_one(&state.db)
@@ -24,11 +24,14 @@ pub async fn count_printers(State(state): State<Arc<AppState>>) -> Json<i32> {
     match printer_count {
         Ok((count,)) => {
             info!("Successfully retrieved printer count: {}", count);
-            Json(count)
+            Ok(Json(count))
         }
         Err(e) => {
             error!("Error retrieving printer count: {e}");
-            Json(0)
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Error retrieving printer count."),
+            ))
         }
     }
 }
@@ -57,18 +60,21 @@ pub async fn search_printer(
     }
 }
 
-pub async fn show_printers(State(state): State<Arc<AppState>>) -> Json<Vec<Printer>> {
-    match sqlx::query_as(r#"SELECT * FROM printers;"#)
+pub async fn show_printers(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+    let printers: Result<Vec<Printer>, sqlx::Error> = sqlx::query_as(r#"SELECT * FROM printers;"#)
         .fetch_all(&state.db)
-        .await
-    {
+        .await;
+    match printers {
         Ok(printers) => {
             info!("Printers listed successfully");
-            Json(printers)
+            Ok(Json(printers))
         }
         Err(e) => {
             error!("Error listing printers: {e}");
-            Json(Vec::new())
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Error listing printers."),
+            ))
         }
     }
 }
@@ -93,25 +99,34 @@ pub async fn create_printer(
     {
         Ok(Some(_)) => {
             error!("Printer '{}' already exists.", &new_printer.name);
-            StatusCode::CONFLICT
+            (StatusCode::CONFLICT, Err(Json("Printer already exists.")))
         }
         Ok(None) => {
             // Name is empty
             if new_printer.name.is_empty() {
                 error!("Printer name cannot be empty.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Printer name cannot be empty.")),
+                );
             }
 
             // Name too short
             if new_printer.name.len() < 4 {
                 error!("Printer name is too short.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Printer name is too short.")),
+                );
             }
 
             // Name too long
             if new_printer.name.len() > 20 {
                 error!("Printer name is too long.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Printer name is too long.")),
+                );
             }
 
             match sqlx::query(
@@ -131,15 +146,21 @@ pub async fn create_printer(
             {
                 Ok(_) => {
                     info!("Printer created! ID: {}", &new_printer.id);
-                    StatusCode::CREATED
+                    (StatusCode::CREATED, Ok(Json(new_printer.id)))
                 }
                 Err(e) => {
                     error!("Error creating printer: {}", e);
-                    StatusCode::INTERNAL_SERVER_ERROR
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Err(Json("Error creating printer.")),
+                    )
                 }
             }
         }
-        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        Err(_) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Err(Json("Error creating printer.")),
+        ),
     }
 }
 
@@ -164,19 +185,28 @@ pub async fn update_printer(
             // Name is empty
             if new_name.is_empty() {
                 error!("Printer name cannot be empty.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Printer name cannot be empty.")),
+                );
             }
 
             // Name too short
             if new_name.len() < 4 {
                 error!("Printer name is too short.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Printer name is too short.")),
+                );
             }
 
             // Name too long
             if new_name.len() > 20 {
                 error!("Printer name is too long.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Printer name is too long.")),
+                );
             }
 
             // Check duplicate
@@ -188,7 +218,7 @@ pub async fn update_printer(
             {
                 Ok(Some(_)) => {
                     error!("Printer name already exists.");
-                    StatusCode::BAD_REQUEST
+                    (StatusCode::CONFLICT, Err(Json("Printer already exists.")))
                 }
                 Ok(None) => {
                     match sqlx::query(
@@ -207,27 +237,36 @@ pub async fn update_printer(
                     {
                         Ok(_) => {
                             info!("Printer updated! ID: {}", &printer_id);
-                            StatusCode::OK
+                            (StatusCode::OK, Ok(Json(printer_id)))
                         }
                         Err(e) => {
                             error!("Error updating printer: {}", e);
-                            StatusCode::INTERNAL_SERVER_ERROR
+                            (
+                                StatusCode::INTERNAL_SERVER_ERROR,
+                                Err(Json("Error updating printer.")),
+                            )
                         }
                     }
                 }
                 Err(e) => {
                     error!("Error checking for duplicate printer name: {}", e);
-                    StatusCode::INTERNAL_SERVER_ERROR
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Err(Json("Error checking for duplicated printer name.")),
+                    )
                 }
             }
         }
         Ok(None) => {
             error!("Printer ID not found.");
-            StatusCode::NOT_FOUND
+            (StatusCode::NOT_FOUND, Err(Json("Printer ID not found.")))
         }
         Err(e) => {
             error!("Error fetching printer by ID: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Err(Json("Error fetching printer by ID")),
+            )
         }
     }
 }
@@ -249,21 +288,27 @@ pub async fn delete_printer(
             {
                 Ok(_) => {
                     info!("Printer deleted! ID: {}", &request.id);
-                    StatusCode::OK
+                    (StatusCode::OK, Ok(Json("Printer deleted!")))
                 }
                 Err(e) => {
                     error!("Error deleting printer: {}", e);
-                    StatusCode::INTERNAL_SERVER_ERROR
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Ok(Json("Error deleting printer.")),
+                    )
                 }
             }
         }
         Ok(None) => {
             error!("Printer ID not found.");
-            StatusCode::NOT_FOUND
+            (StatusCode::NOT_FOUND, Err(Json("Printer ID not found")))
         }
         Err(e) => {
             error!("Error deleting printer: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Err(Json("Error deleting printer.")),
+            )
         }
     }
 }
