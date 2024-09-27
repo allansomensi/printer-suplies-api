@@ -15,7 +15,7 @@ use crate::models::{
     DeleteRequest,
 };
 
-pub async fn count_brands(State(state): State<Arc<AppState>>) -> Json<i32> {
+pub async fn count_brands(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let brand_count: Result<(i32,), sqlx::Error> =
         sqlx::query_as(r#"SELECT COUNT(*)::int FROM brands;"#)
             .fetch_one(&state.db)
@@ -24,11 +24,14 @@ pub async fn count_brands(State(state): State<Arc<AppState>>) -> Json<i32> {
     match brand_count {
         Ok((count,)) => {
             info!("Successfully retrieved brand count: {}", count);
-            Json(count)
+            Ok(Json(count))
         }
         Err(e) => {
             error!("Error retrieving brand count: {e}");
-            Json(0)
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Error retrieving brand count."),
+            ))
         }
     }
 }
@@ -57,18 +60,21 @@ pub async fn search_brand(
     }
 }
 
-pub async fn show_brands(State(state): State<Arc<AppState>>) -> Json<Vec<Brand>> {
-    match sqlx::query_as(r#"SELECT * FROM brands;"#)
+pub async fn show_brands(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+    let brands: Result<Vec<Brand>, sqlx::Error> = sqlx::query_as(r#"SELECT * FROM brands;"#)
         .fetch_all(&state.db)
-        .await
-    {
+        .await;
+    match brands {
         Ok(brands) => {
             info!("Brands listed successfully");
-            Json(brands)
+            Ok(Json(brands))
         }
         Err(e) => {
             error!("Error listing brands: {e}");
-            Json(Vec::new())
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Error listing brands."),
+            ))
         }
     }
 }
@@ -87,25 +93,31 @@ pub async fn create_brand(
     {
         Ok(Some(_)) => {
             error!("Brand '{}' already exists.", &new_brand.name);
-            StatusCode::CONFLICT
+            (StatusCode::CONFLICT, Err(Json("Brand already exists.")))
         }
         Ok(None) => {
             // Name is empty
             if new_brand.name.is_empty() {
                 error!("Brand name cannot be empty.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Brand name cannot be empty.")),
+                );
             }
 
             // Name too short
             if new_brand.name.len() < 4 {
                 error!("Brand name is too short.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Brand name is too short.")),
+                );
             }
 
             // Name too long
             if new_brand.name.len() > 20 {
                 error!("Brand name is too long.");
-                return StatusCode::BAD_REQUEST;
+                return (StatusCode::BAD_REQUEST, Err(Json("Drum name is too long.")));
             }
 
             match sqlx::query(
@@ -121,15 +133,21 @@ pub async fn create_brand(
             {
                 Ok(_) => {
                     info!("Brand created! ID: {}", &new_brand.id);
-                    StatusCode::CREATED
+                    (StatusCode::CREATED, Ok(Json(new_brand.id)))
                 }
                 Err(e) => {
                     error!("Error creating brand: {}", e);
-                    StatusCode::INTERNAL_SERVER_ERROR
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Err(Json("Error creating brand.")),
+                    )
                 }
             }
         }
-        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        Err(_) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Err(Json("Error creating brand.")),
+        ),
     }
 }
 
@@ -150,19 +168,28 @@ pub async fn update_brand(
             // Name is empty
             if new_name.is_empty() {
                 error!("Brand name cannot be empty.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Brand name cannot be empty.")),
+                );
             }
 
             // Name too short
             if new_name.len() < 4 {
                 error!("Brand name is too short.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Brand name is too short.")),
+                );
             }
 
             // Name too long
             if new_name.len() > 20 {
                 error!("Brand name is too long.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Brand name is too long.")),
+                );
             }
 
             // Check duplicate
@@ -174,7 +201,7 @@ pub async fn update_brand(
             {
                 Ok(Some(_)) => {
                     error!("Brand name already exists.");
-                    StatusCode::BAD_REQUEST
+                    (StatusCode::CONFLICT, Err(Json("Brand already exists.")))
                 }
                 Ok(None) => {
                     match sqlx::query(r#"UPDATE brands SET name = $1 WHERE id = $2;"#)
@@ -185,27 +212,36 @@ pub async fn update_brand(
                     {
                         Ok(_) => {
                             info!("Brand updated! ID: {}", &brand_id);
-                            StatusCode::OK
+                            (StatusCode::OK, Ok(Json(brand_id)))
                         }
                         Err(e) => {
                             error!("Error updating brand: {}", e);
-                            StatusCode::INTERNAL_SERVER_ERROR
+                            (
+                                StatusCode::INTERNAL_SERVER_ERROR,
+                                Err(Json("Error updating drum.")),
+                            )
                         }
                     }
                 }
                 Err(e) => {
                     error!("Error checking for duplicate brand name: {}", e);
-                    StatusCode::INTERNAL_SERVER_ERROR
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Err(Json("Error checking for duplicated brand name.")),
+                    )
                 }
             }
         }
         Ok(None) => {
             error!("Brand ID not found.");
-            StatusCode::NOT_FOUND
+            (StatusCode::NOT_FOUND, Err(Json("Brand ID not found.")))
         }
         Err(e) => {
             error!("Error fetching brand by ID: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Err(Json("Error fetching brand by ID")),
+            )
         }
     }
 }
@@ -227,21 +263,27 @@ pub async fn delete_brand(
             {
                 Ok(_) => {
                     info!("Brand deleted! ID: {}", &request.id);
-                    StatusCode::OK
+                    (StatusCode::OK, Ok(Json("Brand deleted!")))
                 }
                 Err(e) => {
                     error!("Error deleting brand: {}", e);
-                    StatusCode::INTERNAL_SERVER_ERROR
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Ok(Json("Error deleting brand.")),
+                    )
                 }
             }
         }
         Ok(None) => {
             error!("Brand ID not found.");
-            StatusCode::NOT_FOUND
+            (StatusCode::NOT_FOUND, Err(Json("Brand ID not found")))
         }
         Err(e) => {
             error!("Error deleting brand: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Err(Json("Error deleting brand.")),
+            )
         }
     }
 }
