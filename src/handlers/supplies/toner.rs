@@ -165,19 +165,28 @@ pub async fn update_toner(
             // Name is empty
             if new_name.is_empty() {
                 error!("Toner name cannot be empty.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::CONFLICT,
+                    Err(Json("Toner name cannot be empty.")),
+                );
             }
 
             // Name too short
             if new_name.len() < 4 {
                 error!("Toner name is too short.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Toner name is too short.")),
+                );
             }
 
             // Name too long
             if new_name.len() > 20 {
                 error!("Toner name is too long.");
-                return StatusCode::BAD_REQUEST;
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Err(Json("Toner name is too long.")),
+                );
             }
 
             // Check duplicate
@@ -189,7 +198,10 @@ pub async fn update_toner(
             {
                 Ok(Some(_)) => {
                     error!("Toner name already exists.");
-                    StatusCode::BAD_REQUEST
+                    (
+                        StatusCode::CONFLICT,
+                        Err(Json("Toner name already exists.")),
+                    )
                 }
                 Ok(None) => {
                     match sqlx::query(r#"UPDATE toners SET name = $1 WHERE id = $2;"#)
@@ -200,27 +212,36 @@ pub async fn update_toner(
                     {
                         Ok(_) => {
                             info!("Toner updated! ID: {}", &toner_id);
-                            StatusCode::OK
+                            (StatusCode::OK, Ok(Json(toner_id)))
                         }
                         Err(e) => {
                             error!("Error updating toner: {}", e);
-                            StatusCode::INTERNAL_SERVER_ERROR
+                            (
+                                StatusCode::INTERNAL_SERVER_ERROR,
+                                Err(Json("Error updating toner.")),
+                            )
                         }
                     }
                 }
                 Err(e) => {
                     error!("Error checking for duplicate toner name: {}", e);
-                    StatusCode::INTERNAL_SERVER_ERROR
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Err(Json("Error checking for duplicated toner name.")),
+                    )
                 }
             }
         }
         Ok(None) => {
             error!("Toner ID not found.");
-            StatusCode::NOT_FOUND
+            (StatusCode::NOT_FOUND, Err(Json("Toner ID not found.")))
         }
         Err(e) => {
             error!("Error fetching toner by ID: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Err(Json("Error fetching toner by ID")),
+            )
         }
     }
 }
@@ -242,21 +263,27 @@ pub async fn delete_toner(
             {
                 Ok(_) => {
                     info!("Toner deleted! ID: {}", &request.id);
-                    StatusCode::OK
+                    (StatusCode::OK, Ok(Json("Toner deleted!")))
                 }
                 Err(e) => {
                     error!("Error deleting toner: {}", e);
-                    StatusCode::INTERNAL_SERVER_ERROR
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Ok(Json("Error deleting toner.")),
+                    )
                 }
             }
         }
         Ok(None) => {
             error!("Toner ID not found.");
-            StatusCode::NOT_FOUND
+            (StatusCode::NOT_FOUND, Err(Json("Toner ID not found")))
         }
         Err(e) => {
             error!("Error deleting toner: {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Err(Json("Error deleting drum.")),
+            )
         }
     }
 }
